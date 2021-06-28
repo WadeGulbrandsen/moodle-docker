@@ -1,0 +1,5 @@
+# IntelliJ files
+.idea
+
+# Instance files for running on dev
+/instance/
