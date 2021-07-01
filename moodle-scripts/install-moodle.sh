@@ -8,7 +8,7 @@ echo "Changing directory to /var/www"
 cd /var/www || exit 1
 
 echo "Cloning Moodle from git"
-git clone git://git.moodle.org/moodle.git
+git clone -q -n https://github.com/moodle/moodle.git
 cd moodle || exit 1
 
 echo "Checking out $git_branch"
