@@ -9,7 +9,6 @@ services:
       deck-chores.moodle.user: 'www-data'
     volumes:
       - ./instance/www:/data
-      - ./moodle-scripts:/moodle-scripts
     ports:
       - 80:80
     depends_on:

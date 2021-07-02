@@ -99,8 +99,7 @@ RUN cd /var/www \
     && git clone -n git://git.moodle.org/moodle.git \
     && cd moodle \
     && git branch --track $MOODLE_BRANCH origin/$MOODLE_BRANCH \
-    && git checkout $MOODLE_BRANCH \
-    && chown -R www-data:www-data /var/www/moodle
+    && git checkout $MOODLE_BRANCH
 
 # Set up the mount for data that should be persisted
 RUN mkdir -p /data/plugins \
