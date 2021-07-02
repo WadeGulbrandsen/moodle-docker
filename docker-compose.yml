@@ -2,7 +2,7 @@ version: "2"
 services:
   moodle:
     build: .
-    image: moodle:3.9
+    image: moodle-docker:3.9
     labels:
       deck-chores.moodle.command: '/usr/local/bin/php /var/www/moodle/admin/cli/cron.php'
       deck-chores.moodle.interval: 'every minute'
