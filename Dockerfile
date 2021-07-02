@@ -73,11 +73,7 @@ RUN docker-php-ext-configure ldap --with-libdir=lib/x86_64-linux-gnu/ \
     && echo "" >> /etc/ldap/ldap.conf
 
 # Memcached, MongoDB, Redis, APCu, igbinary.
-RUN pecl install memcached \
-    && pecl install mongodb \
-    && pecl install redis-4.3.0 \
-    && pecl install apcu \
-    && pecl install igbinary \
+RUN pecl install memcached mongodb redis apcu igbinary \
     && docker-php-ext-enable memcached mongodb redis apcu igbinary
 
 # Enable APC CLI
@@ -93,8 +89,8 @@ RUN pecl clear-cache \
 # Copy PHP config
 COPY php.ini $PHP_INI_DIR/
 
-# Install Moodle 3.8 (the oldest version compatible with PHP 7.4)
-ENV MOODLE_BRANCH MOODLE_38_STABLE
+# Install Moodle 3.9 (current LTS release of Moodle)
+ENV MOODLE_BRANCH MOODLE_39_STABLE
 RUN cd /var/www \
     && git clone -n git://git.moodle.org/moodle.git \
     && cd moodle \
