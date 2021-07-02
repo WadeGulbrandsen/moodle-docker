@@ -1,5 +1,4 @@
 FROM php:7.4-apache-buster
-
 ENV LD_LIBRARY_PATH /usr/local/instantclient
 ENV APACHE_PROXY 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16
 
@@ -13,7 +12,7 @@ RUN a2enmod rewrite remoteip ;\
     sed -ri -e 's!%h!%a!g' /etc/apache2/apache2.conf
 
 # change document root to /var/www/moodle
-RUN sed -ri -e 's!/var/www/html!/var/www/moodle!g' /etc/apache2/sites-available/*.conf
+RUN sed -ri -e 's!/var/www/html!/var/www/moodle!g' /etc/apache2/sites-available/*.conf && rm -rf /var/www/html
 
 # Setup the required extensions.
 ARG DEBIAN_FRONTEND=noninteractive
@@ -51,6 +50,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     $PACKAGES_RUNTIME \
     $PACKAGES_MEMCACHED \
     $PACKAGES_LDAP
+
+# Run freshclam so there are some definitions to work with
+RUN freshclam
 
 # Generate locales
 COPY locale.gen /etc/
@@ -91,16 +93,30 @@ RUN pecl clear-cache \
 # Copy PHP config
 COPY php.ini $PHP_INI_DIR/
 
-# Run freshclam once so that there are definitions ready before first auto update
-RUN freshclam
+# Install Moodle 3.8 (the oldest version compatible with PHP 7.4)
+ENV MOODLE_BRANCH MOODLE_38_STABLE
+RUN cd /var/www \
+    && git clone -n git://git.moodle.org/moodle.git \
+    && cd moodle \
+    && git branch --track $MOODLE_BRANCH origin/$MOODLE_BRANCH \
+    && git checkout $MOODLE_BRANCH \
+    && chown -R www-data:www-data /var/www/moodle
 
-# Environment variables used by scripts
-ENV MOODLE_VERSION 3.9
-ENV SCRIPTS_DIR=/usr/local/moodle-scripts
+# Set up the mount for data that should be persisted
+RUN mkdir -p /data/plugins \
+    && mkdir -p /data/moodledata \
+    && ln -s /data/moodledata /var/www/moodledata \
+    && chown -R www-data:www-data /var/www/moodledata
+VOLUME /data
+
+# Create directories used by Moodle
+RUN mkdir -p /moodle/cache \
+    && mkdir -p /moodle/localcache \
+    && mkdir -p /moodle/temp
 
 # create a directory for the scripts used by the container
-RUN mkdir -p $SCRIPTS_DIR
-WORKDIR $SCRIPTS_DIR
+RUN mkdir -p /moodle-scripts
+WORKDIR /moodle-scripts
 COPY moodle-scripts/*.sh ./
 RUN chmod +x *.sh
 
