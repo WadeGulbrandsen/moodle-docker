@@ -51,10 +51,12 @@ if (( version >= current_version )); then
     git checkout "$MOODLE_BRANCH"
   fi
   chown -R www-data:www-data /var/www/moodle
-  sudo -u www-data /usr/local/bin/php admin/cli/maintenance.php --enable
-  sudo -u www-data /usr/local/bin/php admin/cli/upgrade.php --non-interactive
-  sudo -u www-data /usr/local/bin/php admin/cli/purge_caches.php
-  sudo -u www-data /usr/local/bin/php admin/cli/maintenance.php --disable
+  if [ -f config.php ]; then
+    sudo -u www-data /usr/local/bin/php admin/cli/maintenance.php --enable
+    sudo -u www-data /usr/local/bin/php admin/cli/upgrade.php --non-interactive
+    sudo -u www-data /usr/local/bin/php admin/cli/purge_caches.php
+    sudo -u www-data /usr/local/bin/php admin/cli/maintenance.php --disable
+  fi
 else
   echo "ERROR: The desired branch is older than the current branch"
   exit 1

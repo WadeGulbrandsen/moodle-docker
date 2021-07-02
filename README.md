@@ -70,7 +70,7 @@ Item         | Type      | Description
 ### config.php file
 
 The config.php isn't created automatically. You can create it in one of 3 ways.
-1. Create the file by hand and place it in the data volume
+1. Create the file by hand and place it in the data volume (Only do this if you already set up Moodle before)
 2. Start the container and access it in your browser and follow the Moodle WebUI to set up
 3. Start the container and run
    `docker exec -it <container> sudo -u www-data /usr/local/bin/php /var/www/moodle/admin/cli/install.php`
