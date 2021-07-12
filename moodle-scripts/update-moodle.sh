@@ -1,5 +1,14 @@
 #!/usr/bin/env bash
 
+if [ ! -d "/var/www/moodle" ]; then
+  echo "Installing Moodle from git..."
+  cd /var/www || exit 1
+  git clone -n git://git.moodle.org/moodle.git
+  cd moodle || exit 1
+  git branch --track "$MOODLE_BRANCH" "origin/$MOODLE_BRANCH"
+  git checkout "$MOODLE_BRANCH"
+fi
+
 if [ ! -d "/data/moodledata" ]; then
   echo "Creating /data/moodledata directory"
   mkdir -p /data/moodledata

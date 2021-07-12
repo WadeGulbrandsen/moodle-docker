@@ -3,12 +3,15 @@ services:
   moodle:
     build: .
     image: moodle-docker:3.9
-    labels:
-      deck-chores.moodle.command: '/usr/local/bin/php /var/www/moodle/admin/cli/cron.php'
-      deck-chores.moodle.interval: 'every minute'
-      deck-chores.moodle.user: 'www-data'
+#    labels:
+#      deck-chores.moodle.command: '/usr/local/bin/php /var/www/moodle/admin/cli/cron.php'
+#      deck-chores.moodle.interval: 'every minute'
+#      deck-chores.moodle.user: 'www-data'
+#    environment:
+#      NO_MOODLE_CRON: 'Y'
     volumes:
       - ./instance/www:/data
+#      - ./root/moodle-scripts:/moodle-scripts
     ports:
       - 80:80
     depends_on:
@@ -23,9 +26,9 @@ services:
     volumes:
       - ./instance/db:/var/lib/postgresql/data
 
-  deckchores:
-    image: funkyfuture/deck-chores:1
-    environment:
-      TIMEZONE: America/Thunder_Bay
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+#  deckchores:
+#    image: funkyfuture/deck-chores:1
+#    environment:
+#      TIMEZONE: America/Thunder_Bay
+#    volumes:
+#      - /var/run/docker.sock:/var/run/docker.sock

@@ -1,11 +1,11 @@
 # Moodle
 
-Docker Image for Moodle.
+Docker Image for Moodle. Based on [Moodle HQ's Docker image](https://github.com/moodlehq/moodle-php-apache).
 
 ## Features
 
 * Moodle installed with git to make updates easier
-* Works with `PostgreSQL`, `MySQL`, `MariaDB`, `Microsoft SQL`, and `AWS Aurora MySQL` databases
+* Works with `PostgreSQL`, `MySQL`, `MariaDB`, `AWS Aurora MySQL`, and `Microsoft SQL` databases
   
   ***Moodle 3.9 or higher is needed for Aurora***
 * Supports English (US, AUS, CA) and French (FR, CA)
@@ -20,6 +20,11 @@ Docker Image for Moodle.
   * Sets ownership on Moodle directories to www-data
   * Auto updates to the latest build in `MOODLE_BRANCH`
   * Sets the Apache ServerName from the wwwroot in config.php
+* Cron jobs
+  * Update ClamAV once a day
+  * Run `/usr/local/bin/php /var/www/moodle/admin/cli/cron.php` as www-data every minute
+    Can be disabled by setting the NO_MOODLE_CRON environment variable. If disabled you should set up some other method
+    for running Moodle's tasks.
 * Directories set up to file caches so they don't have to live in the moodledata directory.
   This is useful if you have moodledata on a network drive.
   The following exist in the container.
@@ -54,6 +59,7 @@ Variable         | Required | Default                                   | Descri
 ---------------- | -------- | ----------------------------------------- | -----------
 `MOODLE_BRANCH`  | No       | The MOODLE_BRANCH from the table above    | The git branch that will be checked out. This can be set to upgrade Moodle to a newer version. Make sure that the new version works with the PHP Version 
 `APACHE_PROXY`   | No       | `10.0.0.0/8 172.16.0.0/12 192.168.0.0/16` | Space separated CIDR address(s) of proxy servers in front of Moodle. Defaults to the standard private subnets.
+`NO_MOODLE_CRON` | No       | *BLANK*                                   | Set this to disable the built in cron job for Moodle. Useful in a cluster where you only want a single node running tasks.
 
 ## Volume
 
@@ -143,4 +149,3 @@ Data Volume
     `-- theme
         `-- fordson
 ```
-
