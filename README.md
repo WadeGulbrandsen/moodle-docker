@@ -5,7 +5,7 @@ Docker Image for Moodle.
 ## Features
 
 * Moodle installed with git to make updates easier
-* Works with `PostgreSQL`, `MySQL`, `MariaDB`, and `AWS Aurora MySQL` databases
+* Works with `PostgreSQL`, `MySQL`, `MariaDB`, `Microsoft SQL`, and `AWS Aurora MySQL` databases
   
   ***Moodle 3.9 or higher is needed for Aurora***
 * Supports English (US, AUS, CA) and French (FR, CA)
