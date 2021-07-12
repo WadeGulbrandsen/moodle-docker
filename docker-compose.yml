@@ -11,7 +11,7 @@ services:
 #      NO_MOODLE_CRON: 'Y'
     volumes:
       - ./instance/www:/data
-#      - ./root/moodle-scripts:/moodle-scripts
+      - ./moodle-scripts:/moodle-scripts
     ports:
       - 80:80
     depends_on:
