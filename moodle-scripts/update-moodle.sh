@@ -16,13 +16,13 @@ fi
 if [ -f "/data/config.php" ]; then
   # Copying instead of linking because this gets loaded on every request so can slow Moodle down if this is on slow file system (nfs, efs, etc)
   echo "Copying config.php into /var/www/moodle/"
-  cp -f /data/config.php /var/www/moodle/
+  cp -fp /data/config.php /var/www/moodle/
 fi
 
 /moodle-scripts/restore-plugins.sh
 
 echo "Setting file ownership..."
-chown -R www-data:www-data /var/www/moodle /data/moodledata /moodle
+chown -R moodle:moodle /var/www/moodle /data /moodle
 
 cd /var/www/moodle || exit 1
 
@@ -57,18 +57,18 @@ if (( version >= current_version )); then
     echo "Changing from git branch $current_branch to $MOODLE_BRANCH"
     git checkout --track "origin/$MOODLE_BRANCH"
   fi
-  chown -R www-data:www-data /var/www/moodle
+  chown -R moodle:moodle /var/www/moodle
   if [ -f config.php ]; then
-    database_status=$(sudo -u www-data /usr/local/bin/php admin/cli/check_database_schema.php)
+    database_status=$(sudo -u moodle /usr/local/bin/php admin/cli/check_database_schema.php)
     echo "Moodle Database status: $database_status"
     if [[ "Database structure is ok." == "$database_status" ]]; then
-      upgrade_status=$(sudo -u www-data /usr/local/bin/php admin/cli/checks.php --filter=Upgrade)
+      upgrade_status=$(sudo -u moodle /usr/local/bin/php admin/cli/checks.php --filter=Upgrade)
       echo "Moodle Upgrade status: $upgrade_status"
       if [[ "OK: All 'status' checks OK" != "$upgrade_status" ]]; then
-        sudo -u www-data /usr/local/bin/php admin/cli/maintenance.php --enable
-        sudo -u www-data /usr/local/bin/php admin/cli/upgrade.php --non-interactive
-        sudo -u www-data /usr/local/bin/php admin/cli/purge_caches.php
-        sudo -u www-data /usr/local/bin/php admin/cli/maintenance.php --disable
+        sudo -u moodle /usr/local/bin/php admin/cli/maintenance.php --enable
+        sudo -u moodle /usr/local/bin/php admin/cli/upgrade.php --non-interactive
+        sudo -u moodle /usr/local/bin/php admin/cli/purge_caches.php
+        sudo -u moodle /usr/local/bin/php admin/cli/maintenance.php --disable
       fi
     fi
   fi

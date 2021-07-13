@@ -20,13 +20,6 @@ ENV LD_LIBRARY_PATH /usr/local/instantclient
 
 ENV MOODLE_BRANCH MOODLE_39_STABLE
 
-# Set up the mount for data that should be persisted
-RUN mkdir -p /data/plugins \
-    && mkdir -p /data/moodledata \
-    && ln -s /data/moodledata /var/www/moodledata \
-    && chown -R www-data:www-data /var/www/moodledata
-VOLUME /data
-
 # Create directories used by Moodle
 RUN mkdir -p /moodle/cache \
     && mkdir -p /moodle/localcache \
@@ -38,5 +31,17 @@ ADD moodle-scripts/ /moodle-scripts
 # Set the working directory and make the scripts executeable
 WORKDIR /moodle-scripts
 RUN chmod +x *.sh
+
+# Set up the mount for data that should be persisted
+RUN mkdir -p /data/plugins \
+    && mkdir -p /data/moodledata \
+    && useradd -u 1000 -U -d /data -s /bin/false moodle \
+    && chown -R moodle:moodle /data \
+    && sed -ri -e 's!www-data!moodle!g' /etc/apache2/envvars \
+    && ln -s /data/moodledata /var/www/moodledata \
+    && chown moodle:moodle /var/www/moodledata
+VOLUME /data
+
+EXPOSE 80
 
 ENTRYPOINT ["./dockerstart.sh"]

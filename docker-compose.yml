@@ -8,10 +8,12 @@ services:
 #      deck-chores.moodle.interval: 'every minute'
 #      deck-chores.moodle.user: 'www-data'
 #    environment:
+#      PUID: 33
+#      PGID: 33
 #      NO_MOODLE_CRON: 'Y'
     volumes:
       - ./instance/www:/data
-      - ./moodle-scripts:/moodle-scripts
+#      - ./moodle-scripts:/moodle-scripts
     ports:
       - 80:80
     depends_on:

@@ -60,6 +60,8 @@ Variable         | Required | Default                                   | Descri
 `MOODLE_BRANCH`  | No       | The MOODLE_BRANCH from the table above    | The git branch that will be checked out. This can be set to upgrade Moodle to a newer version. Make sure that the new version works with the PHP Version 
 `APACHE_PROXY`   | No       | `10.0.0.0/8 172.16.0.0/12 192.168.0.0/16` | Space separated CIDR address(s) of proxy servers in front of Moodle. Defaults to the standard private subnets.
 `NO_MOODLE_CRON` | No       | *BLANK*                                   | Set this to disable the built in cron job for Moodle. Useful in a cluster where you only want a single node running tasks.
+`PUID`           | No       | `1000`                                    | User ID for the moodle user
+`GUID`           | No       | `1000`                                    | Group ID for the moodle user
 
 ## Volume
 

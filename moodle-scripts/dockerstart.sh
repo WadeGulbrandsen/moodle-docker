@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+/moodle-scripts/assign-user-id.sh
+
 if [[ -z "$NO_MOODLE_CRON" ]]; then
   echo "Copying Moodle cron job to /etc/cron.d"
   cp /moodle-scripts/cron/moodle /etc/cron.d/
