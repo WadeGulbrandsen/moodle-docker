@@ -3,10 +3,9 @@
 if [ ! -d "/var/www/moodle" ]; then
   echo "Installing Moodle from git..."
   cd /var/www || exit 1
-  git clone -n git://git.moodle.org/moodle.git
+  # Using the github copy of Moodle to allow blobless clone
+  git clone git://github.com/moodle/moodle.git --branch "$MOODLE_BRANCH" --filter=blob:none
   cd moodle || exit 1
-  git branch --track "$MOODLE_BRANCH" "origin/$MOODLE_BRANCH"
-  git checkout "$MOODLE_BRANCH"
 fi
 
 if [ ! -d "/data/moodledata" ]; then
@@ -29,6 +28,9 @@ echo "Setting file ownership..."
 chown -R www-data:www-data /var/www/moodle /data/moodledata /moodle
 
 cd /var/www/moodle || exit 1
+
+echo "Fetching updates from git"
+git fetch
 
 version=$(echo "$MOODLE_BRANCH" | cut -d'_' -f 2)
 
@@ -56,15 +58,22 @@ if (( version >= current_version )); then
     git pull
   else
     echo "Changing from git branch $current_branch to $MOODLE_BRANCH"
-    git branch --track "$MOODLE_BRANCH" "origin/$MOODLE_BRANCH"
-    git checkout "$MOODLE_BRANCH"
+    git checkout --track "origin/$MOODLE_BRANCH"
   fi
   chown -R www-data:www-data /var/www/moodle
   if [ -f config.php ]; then
-    sudo -u www-data /usr/local/bin/php admin/cli/maintenance.php --enable
-    sudo -u www-data /usr/local/bin/php admin/cli/upgrade.php --non-interactive
-    sudo -u www-data /usr/local/bin/php admin/cli/purge_caches.php
-    sudo -u www-data /usr/local/bin/php admin/cli/maintenance.php --disable
+    database_status=$(sudo -u www-data /usr/local/bin/php admin/cli/check_database_schema.php)
+    echo "Moodle Database status: $database_status"
+    if [[ "Database structure is ok." == "$database_status" ]]; then
+      upgrade_status=$(sudo -u www-data /usr/local/bin/php admin/cli/checks.php --filter=Upgrade)
+      echo "Moodle Upgrade status: $upgrade_status"
+      if [[ "OK: All 'status' checks OK" != "$upgrade_status" ]]; then
+        sudo -u www-data /usr/local/bin/php admin/cli/maintenance.php --enable
+        sudo -u www-data /usr/local/bin/php admin/cli/upgrade.php --non-interactive
+        sudo -u www-data /usr/local/bin/php admin/cli/purge_caches.php
+        sudo -u www-data /usr/local/bin/php admin/cli/maintenance.php --disable
+      fi
+    fi
   fi
 else
   echo "ERROR: The desired branch is older than the current branch"
