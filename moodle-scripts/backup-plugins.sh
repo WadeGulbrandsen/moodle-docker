@@ -2,10 +2,7 @@
 
 cd /var/www/moodle || exit 1
 
-if [ -d "/data/plugins" ]; then
-  echo "Removing old plugins from /data/plugins"
-  rm -rf /data/plugins/*
-else
+if [[ ! -d "/data/plugins" ]]; then
   echo "Creating /data/plugins directory"
   mkdir -p /data/plugins
 fi
@@ -13,26 +10,38 @@ fi
 SAVEIFS=$IFS
 IFS=$(echo -en "\n\b")
 
-files=$(git ls-files . --exclude-standard --others)
+plugins=$(git ls-files . --exclude-standard --others --directory)
 
-if [[ -z $files ]]; then
+if [[ -z $plugins ]]; then
   echo "No plugins to backup"
-else
-  echo "Backing up plugins"
 fi
-
-for file in $files
-do
-  cp --parents -f "$file" /data/plugins/
-done
-
-cd /data/plugins || exit 1
-
-plugins=$(ls -d -- */*)
 
 for plugin in $plugins
 do
-  echo "Plugin: $plugin"
+  echo "Backing up: $plugin"
+  rsync -a --relative "$plugin" /data/plugins/
 done
 
 IFS=$SAVEIFS
+
+cd /data/plugins || exit 1
+
+shopt -s nullglob
+shopt -s dotglob
+
+for dir in */*/
+do
+  if [[ "$plugins" != *"$dir"* ]]; then
+    echo "Removing unused: $dir"
+    rm -rf "$dir"
+  fi
+done
+
+for dir in */
+do
+  contents=("$dir"/*)
+  if (( ! ${#contents[*]} )); then
+    echo "Removing empty: $dir"
+    rm -rf "$dir"
+  fi
+done

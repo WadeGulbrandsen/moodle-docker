@@ -19,10 +19,7 @@ if [ -f "/data/config.php" ]; then
   cp -f /data/config.php /var/www/moodle/
 fi
 
-if [ -d "/data/plugins" ] && [ -n "$(ls -A /data/plugins)" ]; then
-  echo "Copying plugins into /var/www/moodle/"
-  cp -ru /data/plugins/* /var/www/moodle/
-fi
+/moodle-scripts/restore-plugins.sh
 
 echo "Setting file ownership..."
 chown -R www-data:www-data /var/www/moodle /data/moodledata /moodle
