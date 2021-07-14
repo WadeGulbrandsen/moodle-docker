@@ -89,7 +89,8 @@ The config.php file isn't created automatically. You can create it in one of 3 w
 2. Start the container and access it in your browser and follow the Moodle WebUI to set up
 3. Start the container and run
    ```shell
-   docker exec -it your_moodle_container sudo -u moodle /usr/local/bin/php /var/www/moodle/admin/cli/install.php
+   docker exec -it your_moodle_container \
+   sudo -u moodle /usr/local/bin/php /var/www/moodle/admin/cli/install.php
    ```
 
 After doing method 2 or 3 run the following commands to copy the config file to persistent storage
@@ -217,7 +218,8 @@ docker run -d -p 80:80 --name your_moodle_container wadegulbrandsen/moodle-docke
 
 To specify a volume or directory to be mounted add the -v option. Environment variables can be specified with -e options.
 ```shell
-docker run -d -p 80:80 --name your_moodle_container -v /path/to/data:/data -e "PUID=1000" -e "PGID=1000" wadegulbrandsen/moodle-docker:lts
+docker run -d -p 80:80 --name your_moodle_container -v /path/to/data:/data \
+-e "PUID=1000" -e "PGID=1000" wadegulbrandsen/moodle-docker:lts
 ```
 
 ## Usage
