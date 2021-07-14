@@ -15,7 +15,7 @@ RUN a2enmod rewrite remoteip ;\
 
 # Setup the required extensions.
 ARG DEBIAN_FRONTEND=noninteractive
-RUN /tmp/setup/php-extensions.sh
+RUN chmod +x /tmp/setup/*.sh && /tmp/setup/php-extensions.sh
 
 # Create the Moodle user and all the directories used by Moodle
 RUN mkdir -p /data/plugins \
@@ -38,7 +38,7 @@ WORKDIR /moodle-scripts
 RUN chmod +x *.sh
 
 ENV PATH "/moodle-scripts:${PATH}"
-ENV MOODLE_BRANCH MOODLE_38_STABLE
+ENV MOODLE_BRANCH MOODLE_39_STABLE
 EXPOSE 80
 
 ENTRYPOINT ["./dockerstart.sh"]
