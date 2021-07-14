@@ -38,7 +38,7 @@ WORKDIR /moodle-scripts
 RUN chmod +x *.sh
 
 ENV PATH "/moodle-scripts:${PATH}"
-ENV MOODLE_BRANCH MOODLE_39_STABLE
+ENV MOODLE_BRANCH MOODLE_310_STABLE
 EXPOSE 80
 
 ENTRYPOINT ["./dockerstart.sh"]
