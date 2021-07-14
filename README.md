@@ -1,10 +1,17 @@
 # Moodle
 
-Docker Image for Moodle. Based on [Moodle HQ's Docker image](https://github.com/moodlehq/moodle-php-apache).
+Docker Image for Moodle.
+
+Image is on [Docker Hub](https://hub.docker.com/r/wadegulbrandsen/moodle-docker)
+
+Source is on [GitHub](https://github.com/WadeGulbrandsen/moodle-docker)
+
+Based on [Moodle HQ's Docker image](https://github.com/moodlehq/moodle-php-apache)
 
 ## Features
 
 * Moodle installed with git to make updates easier
+* Runs Apache as a user and group named `moodle` that can have their uid and gid set by environment variables 
 * Works with `PostgreSQL`, `MySQL`, `MariaDB`, `AWS Aurora MySQL`, and `Microsoft SQL` databases
   
   ***Moodle 3.9 or higher is needed for Aurora***
@@ -17,19 +24,19 @@ Docker Image for Moodle. Based on [Moodle HQ's Docker image](https://github.com/
 * On start or restart the following will be done
   * Update ClamAV definitions
   * Copies plugins in /data/plugins into the container (uses the -u option to only overwrite older files)
-  * Sets ownership on Moodle directories to www-data
-  * Auto updates to the latest build in `MOODLE_BRANCH`
-  * Sets the Apache ServerName from the wwwroot in config.php
+  * Sets ownership on Moodle directories to `moodle`
+  * Auto updates to the latest build in the `MOODLE_BRANCH` environment variable
+  * Sets the Apache ServerName from `wwwroot` in `config.php`
 * Cron jobs
   * Update ClamAV once a day
-  * Run `/usr/local/bin/php /var/www/moodle/admin/cli/cron.php` as www-data every minute
+  * Run `/usr/local/bin/php /var/www/moodle/admin/cli/cron.php` as `moodle` every minute
     Can be disabled by setting the NO_MOODLE_CRON environment variable. If disabled you should set up some other method
-    for running Moodle's tasks.
+    for running Moodle scheduled tasks.
 * Directories set up to file caches so they don't have to live in the moodledata directory.
   This is useful if you have moodledata on a network drive.
   The following exist in the container.
   
-  Directory            | Line to add to config.php                    | Cluster safe
+  Directory            | Line to add to config.php                     | Cluster safe
   -------------------- | --------------------------------------------- | ------------
   `/moodle/localcache` | `$CFG->localcachedir = '/moodle/localcache';` | Yes
   `/moodle/cache`      | `$CFG->cachedir      = '/moodle/cache';`      | **NO**
@@ -59,9 +66,9 @@ Variable         | Required | Default                                   | Descri
 ---------------- | -------- | ----------------------------------------- | -----------
 `MOODLE_BRANCH`  | No       | The MOODLE_BRANCH from the table above    | The git branch that will be checked out. This can be set to upgrade Moodle to a newer version. Make sure that the new version works with the PHP Version 
 `APACHE_PROXY`   | No       | `10.0.0.0/8 172.16.0.0/12 192.168.0.0/16` | Space separated CIDR address(s) of proxy servers in front of Moodle. Defaults to the standard private subnets.
-`NO_MOODLE_CRON` | No       | *BLANK*                                   | Set this to disable the built in cron job for Moodle. Useful in a cluster where you only want a single node running tasks.
-`PUID`           | No       | `1000`                                    | User ID for the moodle user
-`GUID`           | No       | `1000`                                    | Group ID for the moodle user
+`NO_MOODLE_CRON` | No       | *NOT SET*                                 | Set this to disable the built in cron job for Moodle. Useful in a cluster where you only want a single node running tasks.
+`PUID`           | No       | `1000`                                    | User ID for the `moodle` user
+`GUID`           | No       | `1000`                                    | Group ID for the `moodle` user
 
 ## Volume
 
@@ -77,14 +84,21 @@ Item         | Type      | Description
 
 ### config.php file
 
-The config.php isn't created automatically. You can create it in one of 3 ways.
+The config.php file isn't created automatically. You can create it in one of 3 ways.
 1. Create the file by hand and place it in the data volume (Only do this if you already set up Moodle before)
 2. Start the container and access it in your browser and follow the Moodle WebUI to set up
 3. Start the container and run
-   `docker exec -it <container> sudo -u www-data /usr/local/bin/php /var/www/moodle/admin/cli/install.php`
+   ```shell
+   docker exec -it your_moodle_container sudo -u moodle /usr/local/bin/php /var/www/moodle/admin/cli/install.php
+   ```
 
-After doing method 2 or 3 copy the config.php file to the data volume by running
-`docker exec <container> cp /var/www/moodle/config.php /data/`
+After doing method 2 or 3 run the following commands to copy the config file to persistent storage
+and update Apache's ServerName
+```shell
+docker exec your_moodle_container backup-config.sh
+docker exec your_moodle_container set-apache-servername.sh
+docker kill --signal USR1 your_moodle_container
+```
 
 If you have a reverse proxy or load balancer in front of the Moodle container you should add
 `$CFG->reverseproxy = true;` if it is HTTP or `$CFG->sslproxy = true;` if it is HTTPS.
@@ -150,4 +164,110 @@ Data Volume
     |   `-- customsql
     `-- theme
         `-- fordson
+```
+
+## Creating the container
+
+To create the container docker-compose is recommended.
+
+### Compose example
+
+Create a file named `docker-compose.yml` with contents like:
+```yaml
+version: "2"
+services:
+  moodle:
+    image: wadegulbrandsen/moodle-docker:lts
+    environment:
+      PUID: 1001
+      PGID: 1001
+    volumes:
+      - /path/to/data:/data
+    ports:
+      - 80:80
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  db:
+    image: postgres:12
+    environment:
+      POSTGRES_PASSWORD: 'secret-password'
+      POSTGRES_USER: 'moodle-user'
+      POSTGRES_DB: 'moodle-db'
+    volumes:
+      - /path/to/database:/var/lib/postgresql/data
+    restart: unless-stopped
+```
+
+Then to start Moodle and its database run:
+
+```shell
+docker-compose up -d
+```
+
+### Starting with the docker run command
+
+This is not recommended for normal operation but might be useful for testing.
+
+If a volume for /data isn't specified a volume container will automatically be created.
+```shell
+docker run -d -p 80:80 --name your_moodle_container wadegulbrandsen/moodle-docker:3.9
+```
+
+To specify a volume or directory to be mounted add the -v option. Environment variables can be specified with -e options.
+```shell
+docker run -d -p 80:80 --name your_moodle_container -v /path/to/data:/data -e "PUID=1000" -e "PGID=1000" wadegulbrandsen/moodle-docker:lts
+```
+
+## Usage
+
+For all example commands replace **your_moodle_container** with the name/ID of the Docker container running Moodle.
+
+### Scripts
+
+There are several scripts used for managing a running Moodle container.
+The scripts are in the /moodle-scripts directory which is in the PATH variable so can be run from anywhere.
+
+#### Backing up running config to persistent storage
+`backup-config.sh` Copies /var/www/moodle/config.php to /data/config.php
+```shell
+docker exec your_moodle_container backup-config.sh
+```
+`backup-plugins.sh` Copies plugins that are not built into core Moodle to /data/plugins and removes any plugins in
+/data/plugins that are no longer used in the running Moodle.
+```shell
+docker exec your_moodle_container backup-plugins.sh
+```
+
+#### Update running Moodle
+`restore-plugins.sh` Copies all the plugins in /data/plugins to /var/www/moodle
+```shell
+docker exec your_moodle_container restore-plugins.sh
+```
+`update-moodle.sh` Updates Moodle from the /data directory
+* Copies /data/config.php into /var/www/moodle
+* runs `restore-plugins`
+* Set ownership to all Moodle directories to `moodle`
+* Updates the local copy of the Moodle git
+* If the `MOODLE_BRANCH` environment variable is a valid newer branch of Moodle git with checkout that branch
+* Check to the database connection and if Moodle needs to be updated:
+  * Put Moodle into maintenance mode
+  * Do the update
+  * Purge caches
+  * Take Moodle out of maintenance mode
+```shell
+docker exec your_moodle_container update-moodle.sh
+```
+
+#### Update Apache ServerName
+`set-apache-servername.sh` Sets the Apache ServerName the domain in the `wwwroot` variable of /var/www/moodle/config.php
+```shell
+docker exec your_moodle_container set-apache-servername.sh
+```
+
+### Restart Apache
+To restart Apache gracefully without restarting the container you can pass the USR1 signal to the container.
+```shell
+docker kill --signal USR1 your_moodle_container
 ```

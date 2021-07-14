@@ -16,15 +16,20 @@ RUN a2enmod rewrite remoteip ;\
 # Setup the required extensions.
 ARG DEBIAN_FRONTEND=noninteractive
 RUN /tmp/setup/php-extensions.sh
-ENV LD_LIBRARY_PATH /usr/local/instantclient
 
-ENV MOODLE_BRANCH MOODLE_39_STABLE
-
-# Create directories used by Moodle
-RUN mkdir -p /moodle/cache \
+# Create the Moodle user and all the directories used by Moodle
+RUN mkdir -p /data/plugins \
+    && mkdir -p /data/moodledata \
+    && useradd -u 1000 -U -d /data -s /bin/false moodle \
+    && chown -R moodle:moodle /data \
+    && sed -ri -e 's!www-data!moodle!g' /etc/apache2/envvars \
+    && ln -s /data/moodledata /var/www/moodledata \
+    && chown moodle:moodle /var/www/moodledata \
+    && mkdir -p /moodle/cache \
     && mkdir -p /moodle/localcache \
     && mkdir -p /moodle/temp \
     && mkdir -p /moodle-scripts
+VOLUME /data
 
 ADD moodle-scripts/ /moodle-scripts
 
@@ -32,16 +37,8 @@ ADD moodle-scripts/ /moodle-scripts
 WORKDIR /moodle-scripts
 RUN chmod +x *.sh
 
-# Set up the mount for data that should be persisted
-RUN mkdir -p /data/plugins \
-    && mkdir -p /data/moodledata \
-    && useradd -u 1000 -U -d /data -s /bin/false moodle \
-    && chown -R moodle:moodle /data \
-    && sed -ri -e 's!www-data!moodle!g' /etc/apache2/envvars \
-    && ln -s /data/moodledata /var/www/moodledata \
-    && chown moodle:moodle /var/www/moodledata
-VOLUME /data
-
+ENV PATH "/moodle-scripts:${PATH}"
+ENV MOODLE_BRANCH MOODLE_39_STABLE
 EXPOSE 80
 
 ENTRYPOINT ["./dockerstart.sh"]
