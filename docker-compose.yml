@@ -9,7 +9,8 @@ services:
 #      PGID: 33
 #      NO_MOODLE_CRON: 'Y'
     volumes:
-      - ./instance/www:/data
+      - ./instance/data:/data
+      - ./instance/moodle:/var/www/moodle
       - ./moodle-scripts:/moodle-scripts
     ports:
       - 80:80

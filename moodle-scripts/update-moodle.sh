@@ -1,11 +1,24 @@
 #!/usr/bin/env bash
 
-if [ ! -d "/var/www/moodle" ]; then
+NL=$'\n'
+shopt -s nullglob
+shopt -s dotglob
+
+contents=(/var/www/moodle/*)
+if (( ! ${#contents[*]} )); then
   echo "Installing Moodle from git..."
   cd /var/www || exit 1
-  # Using the github copy of Moodle to allow blobless clone
-  git clone git://github.com/moodle/moodle.git --branch "$MOODLE_BRANCH" --filter=blob:none
+  # do a shallow clone to make git faster and take less space
+  git clone git://github.com/moodle/moodle.git --branch "$MOODLE_BRANCH" --depth 1
   cd moodle || exit 1
+fi
+
+echo "Setting file ownership..."
+chown -R moodle:moodle /var/www/moodle /data /moodle
+
+if [ ! -d "/var/www/moodle/.git" ]; then
+  echo "Moodle is not managed by git!" >&2
+  exit 1
 fi
 
 if [ ! -d "/data/moodledata" ]; then
@@ -21,58 +34,87 @@ fi
 
 /moodle-scripts/restore-plugins.sh
 
-echo "Setting file ownership..."
-chown -R moodle:moodle /var/www/moodle /data /moodle
-
 cd /var/www/moodle || exit 1
 
-echo "Fetching updates from git"
-git fetch
-
-version=$(echo "$MOODLE_BRANCH" | cut -d'_' -f 2)
-
-if [[ $(git branch -a) != *"$MOODLE_BRANCH"* ]]; then
-  echo "ERROR: $MOODLE_BRANCH is not a valid git branch"
-  exit 1
-fi
-
-echo "Updating to $MOODLE_BRANCH"
-echo "Checking current branch"
 current_branch=$(git rev-parse --abbrev-ref HEAD)
 
-if [[ "" == "$current_branch" ]]; then
-  echo "ERROR: Could not verify the current branch"
-  exit 1
+if [[ "$MOODLE_BRANCH" == "$current_branch" ]]; then
+  echo "Current branch is the desired branch. Pulling git updates."
+  git pull --depth=1
+  chown -R moodle:moodle /var/www/moodle
 else
-  echo "Current branch is $current_branch"
+  current_version=$(echo "$current_branch" | cut -d'_' -f 2)
+  new_version=$(echo "$MOODLE_BRANCH" | cut -d'_' -f 2)
+  current_version="${current_version:0:1}.${current_version:1}"
+  new_version="${new_version:0:1}.${new_version:1}"
+  to_check="$current_version$NL$new_version"
+  if [ "$to_check" == "$(sort -V <<< "$to_check")" ]; then
+    if git ls-remote --exit-code --heads origin "$MOODLE_BRANCH" &> /dev/null; then
+      echo "Upgrading from $current_branch to $MOODLE_BRANCH"
+      if [[ $(git branch -a) != *"$MOODLE_BRANCH"* ]]; then
+        git remote set-branches --add origin $MOODLE_BRANCH
+      fi
+      git fetch --depth=1
+      if [[ $(git branch) != *"$MOODLE_BRANCH"* ]]; then
+        git checkout --track "origin/$MOODLE_BRANCH"
+      else
+        git checkout -f -q "$MOODLE_BRANCH"
+      fi
+      chown -R moodle:moodle /var/www/moodle
+    else
+      echo "$MOODLE_BRANCH is not a valid branch" >&2
+      exit 1
+    fi
+  else
+    echo "Cannot upgrade to $MOODLE_BRANCH because it older than $current_branch" >&2
+    exit 1
+  fi
 fi
 
-current_version=$(echo "$current_branch" | cut -d'_' -f 2)
+# Clean up git
+SAVEIFS=$IFS
+IFS=$(echo -en "\n\b")
 
-if (( version >= current_version )); then
-  if (( version == current_version )); then
-    echo "Current branch is the desired branch. Pulling git updates."
-    git pull
+branch=$(git rev-parse --abbrev-ref HEAD)
+local_branches=$(git branch)
+remote_branches=$(git branch -r)
+
+for lb in $local_branches
+do
+  trimmed=${lb:2}
+  if [[ "$trimmed" != *"$branch"* ]]; then
+    echo "Removing $trimmed from git"
+    git branch -D "$trimmed"
+  fi
+done
+
+for rb in $remote_branches
+do
+  trimmed=${rb:2}
+  if [[ "$trimmed" != *"$branch"* ]]; then
+    echo "Removing $trimmed from git"
+    git branch -D -r "$trimmed"
+  fi
+done
+
+git remote set-branches origin "$branch"
+
+IFS=$SAVEIFS
+
+sudo -u moodle /usr/local/bin/php admin/cli/upgrade.php --is-pending
+result=$?
+if [ $result -eq 2 ]; then
+  if [[ -n "$AUTO_UPGRADE" ]]; then
+    echo "Upgrading Moodle..."
+    sudo -u moodle /usr/local/bin/php admin/cli/maintenance.php --enable
+    sudo -u moodle /usr/local/bin/php admin/cli/upgrade.php --non-interactive
+    sudo -u moodle /usr/local/bin/php admin/cli/purge_caches.php
+    sudo -u moodle /usr/local/bin/php admin/cli/maintenance.php --disable
   else
-    echo "Changing from git branch $current_branch to $MOODLE_BRANCH"
-    git checkout --track "origin/$MOODLE_BRANCH"
+    echo "Moodle upgrade is pending."
   fi
-  chown -R moodle:moodle /var/www/moodle
-  if [ -f config.php ]; then
-    database_status=$(sudo -u moodle /usr/local/bin/php admin/cli/check_database_schema.php)
-    echo "Moodle Database status: $database_status"
-    if [[ "Database structure is ok." == "$database_status" ]]; then
-      upgrade_status=$(sudo -u moodle /usr/local/bin/php admin/cli/checks.php --filter=Upgrade)
-      echo "Moodle Upgrade status: $upgrade_status"
-      if [[ "OK: All 'status' checks OK" != "$upgrade_status" ]]; then
-        sudo -u moodle /usr/local/bin/php admin/cli/maintenance.php --enable
-        sudo -u moodle /usr/local/bin/php admin/cli/upgrade.php --non-interactive
-        sudo -u moodle /usr/local/bin/php admin/cli/purge_caches.php
-        sudo -u moodle /usr/local/bin/php admin/cli/maintenance.php --disable
-      fi
-    fi
-  fi
+elif [ $result -eq 0 ]; then
+  echo "Moodle is up to date."
 else
-  echo "ERROR: The desired branch is older than the current branch"
-  exit 1
+  exit $result
 fi
