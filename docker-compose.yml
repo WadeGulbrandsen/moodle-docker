@@ -5,9 +5,11 @@ services:
     build: .
     image: moodle-docker:3.9
 #    environment:
+#      AUTO_UPGRADE: "Y"
+#      CLAMAV_CRON: "0 */4 * * *"
+#      MOODLE_CRON: ""
 #      PUID: 33
 #      PGID: 33
-#      NO_MOODLE_CRON: 'Y'
     volumes:
       - ./instance/data:/data
       - ./instance/moodle:/var/www/moodle
@@ -16,6 +18,7 @@ services:
       - 80:80
     depends_on:
       - db
+      - av
     restart: unless-stopped
 
   db:
@@ -27,4 +30,9 @@ services:
       POSTGRES_DB: 'moodle-db'
     volumes:
       - ./instance/db:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  av:
+    container_name: clamav
+    image: mkodockx/docker-clamav
     restart: unless-stopped

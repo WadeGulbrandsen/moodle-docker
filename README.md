@@ -22,15 +22,16 @@ Based on [Moodle HQ's Docker image](https://github.com/moodlehq/moodle-php-apach
   * `memcached`, `redis`, and `mongodb` libraries to connect to cache servers
   * `aspell` with dictionaries for English and French
 * On start or restart the following will be done
-  * Update ClamAV definitions
+  * Update ClamAV definitions if `CLAMAV_CRON` is set
   * Copies plugins in /data/plugins into the container (uses the -u option to only overwrite older files)
   * Sets ownership on Moodle directories to `moodle`
   * Optionally auto updates to the latest build in the `MOODLE_BRANCH` environment variable
   * Sets the Apache ServerName from `wwwroot` in `config.php`
 * Cron jobs
-  * Update ClamAV once a day
-  * Run `/usr/local/bin/php /var/www/moodle/admin/cli/cron.php` as `moodle` every minute
-    Can be disabled by setting the NO_MOODLE_CRON environment variable. If disabled you should set up some other method
+  The jobs can use any schedule desired by setting the `MOODLE_CRON` and `CLAMAV_CRON` environment variables
+  * Update ClamAV's virus definitions. Disabled by default.
+  * Run the `/usr/local/bin/php /var/www/moodle/admin/cli/cron.php` as `moodle` every minute by default
+    Can be disabled by clearing the MOODLE_CRON environment variable. If disabled you should set up some other method
     for running Moodle scheduled tasks.
 * Directories set up to file caches so they don't have to live in the moodledata directory.
   This is useful if you have moodledata on a network drive.
@@ -61,14 +62,18 @@ Tag             | MOODLE_BRANCH     | PHP Version
 `3.8`           | MOODLE_38_STABLE  | 7.4
 
 ## Environment Variables
-Variable         | Required | Default                                   | Description
----------------- | -------- | ----------------------------------------- | -----------
-`MOODLE_BRANCH`  | No       | The MOODLE_BRANCH from the table above    | The git branch that will be checked out. This can be set to upgrade Moodle to a newer version. Make sure that the new version works with the PHP Version 
-`APACHE_PROXY`   | No       | `10.0.0.0/8 172.16.0.0/12 192.168.0.0/16` | Space separated CIDR address(s) of proxy servers in front of Moodle. Defaults to the standard private subnets.
-`NO_MOODLE_CRON` | No       | *NOT SET*                                 | Set this to disable the built in cron job for Moodle. Useful in a cluster where you only want a single node running tasks.
-`AUTO_UPGRADE`   | No       | *NOT SET*                                 | Set this to to enable automatic Moodle upgrades. When set if an update is pending the container will put Moodle in maintenance mode, run the upgrade script, purge caches, and take Moodle out of maintenance mode. Without this set you will need to do the upgrade in the webUI.
-`PUID`           | No       | `1000`                                    | User ID for the `moodle` user
-`GUID`           | No       | `1000`                                    | Group ID for the `moodle` user
+Variable         | Default                                   | Description
+---------------- | ----------------------------------------- | -----------
+`MOODLE_BRANCH`  | The MOODLE_BRANCH from the table above    | The git branch that will be checked out. This can be set to upgrade Moodle to a newer version. Make sure that the new version works with the PHP Version 
+`APACHE_PROXY`   | `10.0.0.0/8 172.16.0.0/12 192.168.0.0/16` | Space separated CIDR address(s) of proxy servers in front of Moodle. Defaults to the standard private subnets.
+`AUTO_UPGRADE`   | *NOT SET*                                 | Set this to to enable automatic Moodle upgrades. When set if an update is pending the container will put Moodle in maintenance mode, run the upgrade script, purge caches, and take Moodle out of maintenance mode. Without this set you will need to do the upgrade in the webUI.
+`PUID`           | `1000`                                    | User ID for the `moodle` user
+`GUID`           | `1000`                                    | Group ID for the `moodle` user
+`MOODLE_CRON`    | `* * * * *`                               | Runs the Moodle cron script every minute. Unset this to disable the built in cron job for Moodle. Useful in a cluster where you only want a single node running tasks.
+`CLAMAV_CRON`    | *NOT SET*                                 | Set this to update ClamAV's definitions on a schedule.
+
+For `MOODLE_CRON` and `CLAMAV_CRON` environment variables the format is the same as in cron.
+See the [cron documentation](https://man7.org/linux/man-pages/man5/crontab.5.html) on the format.
 
 ## Volume
 

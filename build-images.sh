@@ -32,7 +32,8 @@ do
     for remote in "${remotes[@]}"
     do
       docker push "$remote:$tag"
+      # Sleep for a few seconds so Docker Hub will show them in the correct order
+      sleep 5
     done
   done
 done
-

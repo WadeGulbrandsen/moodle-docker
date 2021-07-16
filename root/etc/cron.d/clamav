@@ -1,2 +1,0 @@
-# Run freshclam to get new ClamAV definitions once a day
-53 01 * * * root freshclam --quiet
