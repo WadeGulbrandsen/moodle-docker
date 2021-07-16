@@ -25,7 +25,7 @@ Based on [Moodle HQ's Docker image](https://github.com/moodlehq/moodle-php-apach
   * Update ClamAV definitions
   * Copies plugins in /data/plugins into the container (uses the -u option to only overwrite older files)
   * Sets ownership on Moodle directories to `moodle`
-  * Auto updates to the latest build in the `MOODLE_BRANCH` environment variable
+  * Optionally auto updates to the latest build in the `MOODLE_BRANCH` environment variable
   * Sets the Apache ServerName from `wwwroot` in `config.php`
 * Cron jobs
   * Update ClamAV once a day
@@ -56,7 +56,6 @@ Port 80 tcp is the only port needed
 Tag             | MOODLE_BRANCH     | PHP Version
 --------------- | ----------------- | -----------
 `latest` `3.11` | MOODLE_311_STABLE | 7.4
-`3.11`          | MOODLE_311_STABLE | 7.4
 `3.10`          | MOODLE_310_STABLE | 7.4
 `lts` `3.9`     | MOODLE_39_STABLE  | 7.4
 `3.8`           | MOODLE_38_STABLE  | 7.4
