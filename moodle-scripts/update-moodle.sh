@@ -40,7 +40,8 @@ current_branch=$(git rev-parse --abbrev-ref HEAD)
 
 if [[ "$MOODLE_BRANCH" == "$current_branch" ]]; then
   echo "Current branch is the desired branch. Pulling git updates."
-  git pull --depth=1
+  git fetch --depth=1
+  git reset --hard "origin/$current_branch"
   chown -R moodle:moodle /var/www/moodle
 else
   current_version=$(echo "$current_branch" | cut -d'_' -f 2)
