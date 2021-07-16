@@ -68,7 +68,7 @@ Variable         | Default                                   | Description
 `APACHE_PROXY`   | `10.0.0.0/8 172.16.0.0/12 192.168.0.0/16` | Space separated CIDR address(s) of proxy servers in front of Moodle. Defaults to the standard private subnets.
 `AUTO_UPGRADE`   | *NOT SET*                                 | Set this to to enable automatic Moodle upgrades. When set if an update is pending the container will put Moodle in maintenance mode, run the upgrade script, purge caches, and take Moodle out of maintenance mode. Without this set you will need to do the upgrade in the webUI.
 `PUID`           | `1000`                                    | User ID for the `moodle` user
-`GUID`           | `1000`                                    | Group ID for the `moodle` user
+`PGID`           | `1000`                                    | Group ID for the `moodle` user
 `MOODLE_CRON`    | `* * * * *`                               | Runs the Moodle cron script every minute. Unset this to disable the built in cron job for Moodle. Useful in a cluster where you only want a single node running tasks.
 `CLAMAV_CRON`    | *NOT SET*                                 | Set this to update ClamAV's definitions on a schedule.
 

@@ -31,9 +31,20 @@ do
   do
     for remote in "${remotes[@]}"
     do
-      docker push "$remote:$tag"
+#      docker push "$remote:$tag"
       # Sleep for a few seconds so Docker Hub will show them in the correct order
       sleep 5
     done
   done
 done
+
+if [ -f ~/.docker/cli-plugins/docker-pushrm ] || [ -f /usr/lib/docker/cli-plugins/docker-pushrm ] || [ -f /usr/libexec/docker/cli-plugins/docker-pushrm ]; then
+  for remote in "${remotes[@]}"
+  do
+    echo "Updating readme on $remote"
+    docker pushrm wadegulbrandsen/moodle-docker
+  done
+else
+  echo "Install docker-pushrm to automatically update remote readme files"
+  echo "https://github.com/christian-korneck/docker-pushrm"
+fi
