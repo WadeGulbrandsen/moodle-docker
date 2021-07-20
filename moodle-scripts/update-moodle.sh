@@ -53,7 +53,7 @@ else
     if git ls-remote --exit-code --heads origin "$MOODLE_BRANCH" &> /dev/null; then
       echo "Upgrading from $current_branch to $MOODLE_BRANCH"
       if [[ $(git branch -a) != *"$MOODLE_BRANCH"* ]]; then
-        git remote set-branches --add origin $MOODLE_BRANCH
+        git remote set-branches --add origin "$MOODLE_BRANCH"
       fi
       git fetch --depth=1
       if [[ $(git branch) != *"$MOODLE_BRANCH"* ]]; then

@@ -17,19 +17,16 @@ Based on [Moodle HQ's Docker image](https://github.com/moodlehq/moodle-php-apach
   ***Moodle 3.9 or higher is needed for Aurora***
 * Supports English (US, AUS, CA) and French (FR, CA)
 * Has the following extras installed
-  * `ClamAV` to use with the Antivirus plugin
   * `LDAP` to use with the LDAP Authentication
   * `memcached`, `redis`, and `mongodb` libraries to connect to cache servers
   * `aspell` with dictionaries for English and French
 * On start or restart the following will be done
-  * Update ClamAV definitions if `CLAMAV_CRON` is set
   * Copies plugins in /data/plugins into the container (uses the -u option to only overwrite older files)
   * Sets ownership on Moodle directories to `moodle`
   * Optionally auto updates to the latest build in the `MOODLE_BRANCH` environment variable
   * Sets the Apache ServerName from `wwwroot` in `config.php`
 * Cron jobs
-  The jobs can use any schedule desired by setting the `MOODLE_CRON` and `CLAMAV_CRON` environment variables
-  * Update ClamAV's virus definitions. Disabled by default.
+  The jobs can use any schedule desired by setting the `MOODLE_CRON` environment variables
   * Run the `/usr/local/bin/php /var/www/moodle/admin/cli/cron.php` as `moodle` every minute by default
     Can be disabled by clearing the MOODLE_CRON environment variable. If disabled you should set up some other method
     for running Moodle scheduled tasks.
@@ -70,9 +67,8 @@ Variable         | Default                                   | Description
 `PUID`           | `1000`                                    | User ID for the `moodle` user
 `PGID`           | `1000`                                    | Group ID for the `moodle` user
 `MOODLE_CRON`    | `* * * * *`                               | Runs the Moodle cron script every minute. Unset this to disable the built in cron job for Moodle. Useful in a cluster where you only want a single node running tasks.
-`CLAMAV_CRON`    | *NOT SET*                                 | Set this to update ClamAV's definitions on a schedule.
 
-For `MOODLE_CRON` and `CLAMAV_CRON` environment variables the format is the same as in cron.
+For `MOODLE_CRON` environment variables the format is the same as in cron.
 See the [cron documentation](https://man7.org/linux/man-pages/man5/crontab.5.html) on the format.
 
 ## Volume
@@ -193,6 +189,7 @@ services:
       - 80:80
     depends_on:
       - db
+      - av
     restart: unless-stopped
 
   db:
@@ -203,6 +200,11 @@ services:
       POSTGRES_DB: 'moodle-db'
     volumes:
       - /path/to/database:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  av:
+    container_name: clamav
+    image: mkodockx/docker-clamav
     restart: unless-stopped
 ```
 

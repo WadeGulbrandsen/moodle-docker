@@ -17,7 +17,7 @@ PACKAGES_MYMARIA="libmariadb3"
 
 # Packages for other Moodle runtime dependenices.
 PACKAGES_RUNTIME="ghostscript libaio1 libcurl4 libgss3 libicu63 libmcrypt-dev libxml2 libxslt1.1 \
-  libzip-dev locales sassc unixodbc unzip zip aspell aspell-en aspell-fr clamav"
+  libzip-dev locales sassc unixodbc unzip zip aspell aspell-en aspell-fr"
 
 # Packages for Memcached.
 PACKAGES_MEMCACHED="libmemcached11 libmemcachedutil2"
@@ -52,10 +52,7 @@ docker-php-ext-install -j$(nproc) gd
 # LDAP.
 docker-php-ext-configure ldap --with-libdir=lib/x86_64-linux-gnu/
 docker-php-ext-install -j$(nproc) ldap
-echo "" >> /etc/ldap/ldap.conf
-echo "# Disable verifying the certs of LDAPS servers." >> /etc/ldap/ldap.conf
-echo -e "TLS_REQCERT\tnever" >> /etc/ldap/ldap.conf
-echo "" >> /etc/ldap/ldap.conf
+echo -e "\n# Disable verifying the certs of LDAPS servers.\nTLS_REQCERT\tnever\n" >> /etc/ldap/ldap.conf
 
 # Memcached, MongoDB, Redis, APCu, igbinary, solr, uuid
 pecl install memcached mongodb redis apcu igbinary solr uuid
