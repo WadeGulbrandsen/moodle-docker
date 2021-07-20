@@ -26,10 +26,20 @@ Based on [Moodle HQ's Docker image](https://github.com/moodlehq/moodle-php-apach
   * Optionally auto updates to the latest build in the `MOODLE_BRANCH` environment variable
   * Sets the Apache ServerName from `wwwroot` in `config.php`
 * Cron jobs
-  The jobs can use any schedule desired by setting the `MOODLE_CRON` environment variables
-  * Run the `/usr/local/bin/php /var/www/moodle/admin/cli/cron.php` as `moodle` every minute by default
-    Can be disabled by clearing the MOODLE_CRON environment variable. If disabled you should set up some other method
+  The jobs can use any schedule desired by setting the appropriate environment variables
+  * `MOODLE_CRON` Runs `/usr/local/bin/php /var/www/moodle/admin/cli/cron.php` as `moodle` every minute.
+    Can be disabled by clearing the `MOODLE_CRON` environment variable. If disabled you should set up some other method
     for running Moodle scheduled tasks.
+  * `BACKUP_CRON` Runs the [`backup-config.sh`](#backup-config) and [`backup-plugins.sh`](#backup-plugins) scripts.
+  Useful if you still want to use the Moodle webUI to install and update plugins. If you have a cluster only one node
+  should use the backup job. The rest should use either the update or restore job.
+  * `UPDATE_CRON` Runs the [`update-moodle.sh`](#update-moodle) script.
+  Combine with `AUTO_UPGRADE` if you want the running Moodle to be updated when the contents of /data
+  change. Only one node in a cluster should run this so that multiple nodes don't try to updata Moodle at the same time.
+  * `RESTORE_CRON` Runs the [`restore-plugins.sh`](#restore-plugins) script. Use this if you want new plugins added to
+  /data added to the running Moodle but you want to run the updates on your own.
+    
+  **Only one of `BACKUP_CRON`, `UPDATE_CRON` or `RESTORE_CRON` should be set on a container.**
 * Directories set up to file caches so they don't have to live in the moodledata directory.
   This is useful if you have moodledata on a network drive.
   The following exist in the container.
@@ -67,8 +77,11 @@ Variable         | Default                                   | Description
 `PUID`           | `1000`                                    | User ID for the `moodle` user
 `PGID`           | `1000`                                    | Group ID for the `moodle` user
 `MOODLE_CRON`    | `* * * * *`                               | Runs the Moodle cron script every minute. Unset this to disable the built in cron job for Moodle. Useful in a cluster where you only want a single node running tasks.
+`BACKUP_CRON`    | *NOT SET*                                 | Runs scripts to backup running moodle to /data
+`UPDATE_CRON`    | *NOT SET*                                 | Runs scripts to update the running moodle from /data
+`RESTORE_CRON`   | *NOT SET*                                 | Copies plugins from /data into the running moodle
 
-For `MOODLE_CRON` environment variables the format is the same as in cron.
+For the environment variables ending in **_CRON** the format is the same as in cron.
 See the [cron documentation](https://man7.org/linux/man-pages/man5/crontab.5.html) on the format.
 
 ## Volume
@@ -239,24 +252,24 @@ There are several scripts used for managing a running Moodle container.
 The scripts are in the /moodle-scripts directory which is in the PATH variable so can be run from anywhere.
 
 #### Backing up running config to persistent storage
-`backup-config.sh` Copies /var/www/moodle/config.php to /data/config.php
+<a name="backup-config"></a>`backup-config.sh` Copies /var/www/moodle/config.php to /data/config.php
 ```shell
 docker exec your_moodle_container backup-config.sh
 ```
-`backup-plugins.sh` Copies plugins that are not built into core Moodle to /data/plugins and removes any plugins in
-/data/plugins that are no longer used in the running Moodle.
+<a name="backup-plugins"></a>`backup-plugins.sh` Copies plugins that are not built into core Moodle to
+/data/plugins. The script then removes any plugins in /data/plugins that the running Moodle no longer uses.
 ```shell
 docker exec your_moodle_container backup-plugins.sh
 ```
 
 #### Update running Moodle
-`restore-plugins.sh` Copies all the plugins in /data/plugins to /var/www/moodle
+<a name="restore-plugins"></a>`restore-plugins.sh` Copies all the plugins in /data/plugins to /var/www/moodle
 ```shell
 docker exec your_moodle_container restore-plugins.sh
 ```
-`update-moodle.sh` Updates Moodle from the /data directory
+<a name="update-moodle"></a>`update-moodle.sh` Updates Moodle from the /data directory
 * Copies /data/config.php into /var/www/moodle
-* runs `restore-plugins`
+* runs `restore-plugins.sh`
 * Set ownership to all Moodle directories to `moodle`
 * Updates the local copy of the Moodle git
 * If the `MOODLE_BRANCH` environment variable is a valid newer branch of Moodle git with checkout that branch

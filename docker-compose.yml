@@ -6,8 +6,10 @@ services:
     image: moodle-docker:3.9
 #    environment:
 #      AUTO_UPGRADE: "Y"
-#      CLAMAV_CRON: "0 */4 * * *"
 #      MOODLE_CRON: ""
+#      BACKUP_CRON: "*/2 * * * *"
+#      UPDATE_CRON: "*/5 * * * *"
+#      RESTORE_CRON: "*/4 * * * *"
 #      PUID: 33
 #      PGID: 33
     volumes:
