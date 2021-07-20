@@ -26,7 +26,7 @@ PACKAGES_MEMCACHED="libmemcached11 libmemcachedutil2"
 PACKAGES_LDAP="libldap-2.4-2"
 
 # Other useful packages to have in the image.
-PACKAGES_OTHER="git sudo rsync"
+PACKAGES_OTHER="git sudo rsync cron"
 
 apt-get update
 apt-get install -y --no-install-recommends apt-transport-https \
