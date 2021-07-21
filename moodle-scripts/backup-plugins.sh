@@ -19,7 +19,7 @@ fi
 for plugin in $plugins
 do
   echo "Backing up: $plugin"
-  rsync -a --relative "$plugin" /data/plugins/
+  rsync -a --relative --del "$plugin" /data/plugins/
 done
 
 IFS=$SAVEIFS

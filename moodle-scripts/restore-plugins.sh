@@ -10,7 +10,7 @@ if [ -d "/data/plugins" ]; then
   for plugin in "${plugins[@]}"
   do
     echo "Restoring: $plugin"
-    rsync -a --relative "$plugin" /var/www/moodle
+    rsync -a --relative --del "$plugin" /var/www/moodle
   done
   IFS=$SAVEIFS
 fi
