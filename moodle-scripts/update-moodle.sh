@@ -9,7 +9,7 @@ if (( ! ${#contents[*]} )); then
   echo "Installing Moodle from git..."
   cd /var/www || exit 1
   # do a shallow clone to make git faster and take less space
-  git clone git://github.com/moodle/moodle.git --branch "$MOODLE_BRANCH" --depth 1
+  git clone "$GIT_URL" --branch "$MOODLE_BRANCH" --depth 1
   cd moodle || exit 1
 fi
 

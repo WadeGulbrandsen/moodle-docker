@@ -21,7 +21,7 @@ fi
 
 if [[ -n "$UPDATE_CRON" ]]; then
   echo "Setting Update cron job schedule to $UPDATE_CRON in /etc/cron.d/update-moodle"
-  printenv | grep -E 'MOODLE_BRANCH|AUTO_UPGRADE' > /etc/cron.d/update-moodle
+  printenv | grep -E 'MOODLE_BRANCH|AUTO_UPGRADE|GIT_URL' > /etc/cron.d/update-moodle
   echo "$UPDATE_CRON root bash -l -c '/moodle-scripts/update-moodle.sh' $docker_output" >> /etc/cron.d/update-moodle
 elif [ -f /etc/cron.d/update-moodle ]; then
   echo "Removing Update cron job from /etc/cron.d"

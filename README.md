@@ -71,6 +71,7 @@ Tag             | MOODLE_BRANCH     | PHP Version
 ## Environment Variables
 Variable         | Default                                   | Description
 ---------------- | ----------------------------------------- | -----------
+`GIT_URL`        | `git://github.com/moodle/moodle.git`      | The git repository to get Moodle from. Use `https://github.com/moodle/moodle.git` instead to get around some firewalls.
 `MOODLE_BRANCH`  | The MOODLE_BRANCH from the table above    | The git branch that will be checked out. This can be set to upgrade Moodle to a newer version. Make sure that the new version works with the PHP Version 
 `APACHE_PROXY`   | `10.0.0.0/8 172.16.0.0/12 192.168.0.0/16` | Space separated CIDR address(s) of proxy servers in front of Moodle. Defaults to the standard private subnets.
 `AUTO_UPGRADE`   | *NOT SET*                                 | Set this to to enable automatic Moodle upgrades. When set if an update is pending the container will put Moodle in maintenance mode, run the upgrade script, purge caches, and take Moodle out of maintenance mode. Without this set you will need to do the upgrade in the webUI.

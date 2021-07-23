@@ -41,6 +41,7 @@ ENV PATH "/moodle-scripts:${PATH}"
 ARG MOODLE_BRANCH=MOODLE_39_STABLE
 ENV MOODLE_BRANCH=$MOODLE_BRANCH
 ENV MOODLE_CRON "* * * * *"
+ENV GIT_URL "git://github.com/moodle/moodle.git"
 EXPOSE 80
 
 ENTRYPOINT ["./dockerstart.sh"]

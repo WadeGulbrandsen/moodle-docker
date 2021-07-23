@@ -4,10 +4,12 @@ services:
     container_name: moodle
     build: .
     image: moodle-docker:3.9
-#    environment:
-#      AUTO_UPGRADE: "Y"
+    environment:
+      GIT_URL: "https://github.com/moodle/moodle.git"
+#      MOODLE_BRANCH: "MOODLE_310_STABLE"
+      AUTO_UPGRADE: "Y"
 #      MOODLE_CRON: ""
-#      BACKUP_CRON: "*/2 * * * *"
+      BACKUP_CRON: "*/15 * * * *"
 #      UPDATE_CRON: "*/5 * * * *"
 #      RESTORE_CRON: "*/4 * * * *"
 #      PUID: 33
