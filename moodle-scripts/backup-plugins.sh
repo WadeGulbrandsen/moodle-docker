@@ -5,6 +5,7 @@ cd /var/www/moodle || exit 1
 if [[ ! -d "/data/plugins" ]]; then
   echo "Creating /data/plugins directory"
   mkdir -p /data/plugins
+  chown moodle:moodle /data/plugins
 fi
 
 SAVEIFS=$IFS
