@@ -33,6 +33,9 @@ Based on [Moodle HQ's Docker image](https://github.com/moodlehq/moodle-php-apach
   * `BACKUP_CRON` Runs the [`backup-config.sh`](#backup-config) and [`backup-plugins.sh`](#backup-plugins) scripts.
   Useful if you still want to use the Moodle webUI to install and update plugins. If you have a cluster only one node
   should use the backup job. The rest should use either the update or restore job.
+  * `PLUGINS_CRON` Runs the [`backup-plugins.sh`](#backup-plugins) script.
+    Same as `BACKUP_CRON` but doesn't backup config.php.
+    Ideal if using environment variables instead of a config.php file.
   * `UPDATE_CRON` Runs the [`update-moodle.sh`](#update-moodle) script.
   Combine with `AUTO_UPGRADE` if you want the running Moodle to be updated when the contents of /data
   change. Only one node in a cluster should run this so that multiple nodes don't try to updata Moodle at the same time.
