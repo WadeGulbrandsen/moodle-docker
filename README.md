@@ -240,7 +240,15 @@ services:
 
   av:
     container_name: clamav
-    image: mkodockx/docker-clamav
+    image: tiredofit/clamav:latest
+    environment:
+      MAX_FILE_SIZE: 100M
+      MAX_SCAN_SIZE: 100M
+      PCRE_MAX_FILE_SIZE: 100M
+      STREAM_MAX_LENGTH: 100M
+    volumes:
+      - /path/to/clamav/data:/data
+      - /path/to/clamav/logs:/logs
     restart: unless-stopped
 ```
 
