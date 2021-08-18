@@ -5,7 +5,7 @@ services:
     build: .
     image: moodle-docker:3.9
     env_file:
-      - ./instance/moodle.env
+      - ./instance/.env
     environment:
       GIT_URL: "https://github.com/moodle/moodle.git"
 #      MOODLE_BRANCH: "MOODLE_310_STABLE"
@@ -47,16 +47,26 @@ services:
       --collation-server=utf8mb4_bin
       --innodb_file_per_table=On
       --wait-timeout=28800
+    env_file:
+      - ./instance/.env
     environment:
       MARIADB_ROOT_PASSWORD: 'super-secret-password'
-      MARIADB_PASSWORD: 'secret-password'
-      MARIADB_USER: 'moodle-user'
-      MARIADB_DATABASE: 'moodle-db'
+      MARIADB_DATABASE: $MOODLE_DATABASE_NAME
+      MARIADB_USER: $MOODLE_DATABASE_USER
+      MARIADB_PASSWORD: $MOODLE_DATABASE_PASSWORD
     volumes:
       - ./instance/mariadb:/var/lib/mysql
     restart: unless-stopped
 
   av:
     container_name: clamav
-    image: mkodockx/docker-clamav
+    image: tiredofit/clamav:latest
+    environment:
+      MAX_FILE_SIZE: $CLAMAV_MAX_SIZE
+      MAX_SCAN_SIZE: $CLAMAV_MAX_SIZE
+      PCRE_MAX_FILE_SIZE: $CLAMAV_MAX_SIZE
+      STREAM_MAX_LENGTH: $CLAMAV_MAX_SIZE
+    volumes:
+      - ./instance/clamav/data:/data
+      - ./instance/clamav/logs:/logs
     restart: unless-stopped
