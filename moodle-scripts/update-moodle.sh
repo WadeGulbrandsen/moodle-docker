@@ -9,7 +9,7 @@ if (( ! ${#contents[*]} )); then
   echo "Installing Moodle from git..."
   cd /var/www || exit 1
   # do a shallow clone to make git faster and take less space
-  git clone "$GIT_URL" --branch "$MOODLE_BRANCH" --depth 1
+  git clone "$GIT_URL" --branch "$MOODLE_BRANCH" --depth 1 --quiet
   cd moodle || exit 1
 fi
 
@@ -30,6 +30,8 @@ if [ -f "/data/config.php" ]; then
   # Copying instead of linking because this gets loaded on every request so can slow Moodle down if this is on slow file system (nfs, efs, etc)
   echo "Copying config.php into /var/www/moodle/"
   cp -fp /data/config.php /var/www/moodle/
+else
+  /moodle-scripts/create-config.sh
 fi
 
 /moodle-scripts/restore-plugins.sh
@@ -40,7 +42,7 @@ current_branch=$(git rev-parse --abbrev-ref HEAD)
 
 if [[ "$MOODLE_BRANCH" == "$current_branch" ]]; then
   echo "Current branch is the desired branch. Pulling git updates."
-  git fetch --depth=1
+  git fetch --depth=1 --quiet
   git reset --hard "origin/$current_branch"
   chown -R moodle:moodle /var/www/moodle
 else
@@ -57,7 +59,7 @@ else
       fi
       git fetch --depth=1
       if [[ $(git branch) != *"$MOODLE_BRANCH"* ]]; then
-        git checkout --track "origin/$MOODLE_BRANCH"
+        git checkout --track "origin/$MOODLE_BRANCH" --quiet
       else
         git checkout -f -q "$MOODLE_BRANCH"
       fi

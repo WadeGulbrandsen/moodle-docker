@@ -4,12 +4,15 @@ services:
     container_name: moodle
     build: .
     image: moodle-docker:3.9
+    env_file:
+      - ./instance/moodle.env
     environment:
       GIT_URL: "https://github.com/moodle/moodle.git"
 #      MOODLE_BRANCH: "MOODLE_310_STABLE"
       AUTO_UPGRADE: "Y"
 #      MOODLE_CRON: ""
-      BACKUP_CRON: "*/15 * * * *"
+#      BACKUP_CRON: "*/15 * * * *"
+      PLUGINS_CRON: "*/15 * * * *"
 #      UPDATE_CRON: "*/5 * * * *"
 #      RESTORE_CRON: "*/4 * * * *"
 #      PUID: 33
@@ -25,15 +28,32 @@ services:
       - av
     restart: unless-stopped
 
+#  db:
+#    container_name: postgres
+#    image: postgres:12
+#    environment:
+#      POSTGRES_PASSWORD: 'secret-password'
+#      POSTGRES_USER: 'moodle-user'
+#      POSTGRES_DB: 'moodle-db'
+#    volumes:
+#      - ./instance/db:/var/lib/postgresql/data
+#    restart: unless-stopped
+
   db:
-    container_name: postgres
-    image: postgres:12
+    container_name: mariadb
+    image: mariadb:10.5
+    command: >
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_bin
+      --innodb_file_per_table=On
+      --wait-timeout=28800
     environment:
-      POSTGRES_PASSWORD: 'secret-password'
-      POSTGRES_USER: 'moodle-user'
-      POSTGRES_DB: 'moodle-db'
+      MARIADB_ROOT_PASSWORD: 'super-secret-password'
+      MARIADB_PASSWORD: 'secret-password'
+      MARIADB_USER: 'moodle-user'
+      MARIADB_DATABASE: 'moodle-db'
     volumes:
-      - ./instance/db:/var/lib/postgresql/data
+      - ./instance/mariadb:/var/lib/mysql
     restart: unless-stopped
 
   av:

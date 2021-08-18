@@ -78,12 +78,31 @@ Variable         | Default                                   | Description
 `PUID`           | `1000`                                    | User ID for the `moodle` user
 `PGID`           | `1000`                                    | Group ID for the `moodle` user
 `MOODLE_CRON`    | `* * * * *`                               | Runs the Moodle cron script every minute. Unset this to disable the built in cron job for Moodle. Useful in a cluster where you only want a single node running tasks.
-`BACKUP_CRON`    | *NOT SET*                                 | Runs scripts to backup running moodle to /data
+`BACKUP_CRON`    | *NOT SET*                                 | Runs the `backup-config.sh` and `backup-plugins.sh` scripts to backup running moodle to /data
+`PLUGINS_CRON`   | *NOT SET*                                 | Runs the `backup-plugins.sh` script to only backup the plugins.
 `UPDATE_CRON`    | *NOT SET*                                 | Runs scripts to update the running moodle from /data
 `RESTORE_CRON`   | *NOT SET*                                 | Copies plugins from /data into the running moodle
 
 For the environment variables ending in **_CRON** the format is the same as in cron.
 See the [cron documentation](https://man7.org/linux/man-pages/man5/crontab.5.html) on the format.
+
+The following can be used to create a config.php file. It will only be created the first time the container is run.
+If config.php already exists in /data/ these settings will be ignored. To create the file `MOODLE_DATABASE_PASSWORD` is
+required to be set.
+
+Variable                      | Default                     | Description
+----------------------------- | --------------------------- | -----------
+`MOODLE_DATABASE_TYPE`        | `mysqli`                    | The type of database to use. Valid values are `pgsql`, `mysqli`, `mariadb`, `sqlsrv`, and `auroramysql`
+`MOODLE_DATABASE_HOST`        | `db`                        | The hostname or IP address for the database server.
+`MOODLE_DATABASE_PORT_NUMBER` | *NOT SET*                   | The port used by the database. Only needed if not using the default port for the database.
+`MOODLE_DATABASE_NAME`        | `moodledb`                  | The name of the Moodle database.
+`MOODLE_DATABASE_USER`        | `moodledbuser`              | The username to access the Moodle database.
+`MOODLE_DATABASE_PASSWORD`    | *NOT SET*                   | The password for the Moodle database.
+`MYSQL_DATABASE_COLLATION`    | `utf8mb4_unicode_ci`        | The collation used by `mysqli`, `mariadb`, and `auroramysql` databases. Ignored for other types.
+`MOODLE_WWW_ROOT`             | `http://moodle.example.com` | The URL to users access Moodle from. If the URL starts with https:// then ssslproxy will be set to true.
+`MOODLE_LOCAL_CACHE_DIR`      | `/moodle/localcache`        | The location for the local cache.
+`MOODLE_CACHE_DIR`            | *NOT SET*                   | The location for the shared cache. Can use `/moodle/cache` for non-clustered Moodle.
+`MOODEL_TEMP_DIR`             | *NOT SET*                   | The location for temp files. Can use `/moodle/temp` for non-clustered Moodle.
 
 ## Volume
 

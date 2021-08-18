@@ -19,6 +19,14 @@ elif [ -f /etc/cron.d/backup-moodle ]; then
   rm -f /etc/cron.d/backup-moodle
 fi
 
+if [[ -n "$PLUGINS_CRON" ]]; then
+  echo "Setting Plugins cron job schedule to $PLUGINS_CRON in /etc/cron.d/plugins-moodle"
+  echo "$PLUGINS_CRON root /moodle-scripts/backup-plugins.sh $docker_output" > /etc/cron.d/plugins-moodle
+elif [ -f /etc/cron.d/plugins-moodle ]; then
+  echo "Removing Plugins cron job from /etc/cron.d"
+  rm -f /etc/cron.d/plugins-moodle
+fi
+
 if [[ -n "$UPDATE_CRON" ]]; then
   echo "Setting Update cron job schedule to $UPDATE_CRON in /etc/cron.d/update-moodle"
   printenv | grep -E 'MOODLE_BRANCH|AUTO_UPGRADE|GIT_URL' > /etc/cron.d/update-moodle

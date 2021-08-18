@@ -42,6 +42,7 @@ ARG MOODLE_BRANCH=MOODLE_39_STABLE
 ENV MOODLE_BRANCH=$MOODLE_BRANCH
 ENV MOODLE_CRON "* * * * *"
 ENV GIT_URL "git://github.com/moodle/moodle.git"
+ENV MOODLE_LOCAL_CACHE_DIR "/moodle/localcache"
 EXPOSE 80
 
 ENTRYPOINT ["./dockerstart.sh"]
