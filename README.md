@@ -72,19 +72,20 @@ Tag             | MOODLE_BRANCH     | PHP Version
 `3.8`           | MOODLE_38_STABLE  | 7.4
 
 ## Environment Variables
-Variable         | Default                                   | Description
----------------- | ----------------------------------------- | -----------
-`GIT_URL`        | `git://github.com/moodle/moodle.git`      | The git repository to get Moodle from. Use `https://github.com/moodle/moodle.git` instead to get around some firewalls.
-`MOODLE_BRANCH`  | The MOODLE_BRANCH from the table above    | The git branch that will be checked out. This can be set to upgrade Moodle to a newer version. Make sure that the new version works with the PHP Version 
-`APACHE_PROXY`   | `10.0.0.0/8 172.16.0.0/12 192.168.0.0/16` | Space separated CIDR address(s) of proxy servers in front of Moodle. Defaults to the standard private subnets.
-`AUTO_UPGRADE`   | *NOT SET*                                 | Set this to to enable automatic Moodle upgrades. When set if an update is pending the container will put Moodle in maintenance mode, run the upgrade script, purge caches, and take Moodle out of maintenance mode. Without this set you will need to do the upgrade in the webUI.
-`PUID`           | `1000`                                    | User ID for the `moodle` user
-`PGID`           | `1000`                                    | Group ID for the `moodle` user
-`MOODLE_CRON`    | `* * * * *`                               | Runs the Moodle cron script every minute. Unset this to disable the built in cron job for Moodle. Useful in a cluster where you only want a single node running tasks.
-`BACKUP_CRON`    | *NOT SET*                                 | Runs the `backup-config.sh` and `backup-plugins.sh` scripts to backup running moodle to /data
-`PLUGINS_CRON`   | *NOT SET*                                 | Runs the `backup-plugins.sh` script to only backup the plugins.
-`UPDATE_CRON`    | *NOT SET*                                 | Runs scripts to update the running moodle from /data
-`RESTORE_CRON`   | *NOT SET*                                 | Copies plugins from /data into the running moodle
+Variable           | Default                                   | Description
+------------------ | ----------------------------------------- | -----------
+`GIT_URL`          | `git://github.com/moodle/moodle.git`      | The git repository to get Moodle from. Use `https://github.com/moodle/moodle.git` instead to get around some firewalls.
+`MOODLE_BRANCH`    | The MOODLE_BRANCH from the table above    | The git branch that will be checked out. This can be set to upgrade Moodle to a newer version. Make sure that the new version works with the PHP Version 
+`APACHE_PROXY`     | `10.0.0.0/8 172.16.0.0/12 192.168.0.0/16` | Space separated CIDR address(s) of proxy servers in front of Moodle. Defaults to the standard private subnets.
+`AUTO_UPGRADE`     | *NOT SET*                                 | Set this to to enable automatic Moodle upgrades. When set if an update is pending the container will put Moodle in maintenance mode, run the upgrade script, purge caches, and take Moodle out of maintenance mode. Without this set you will need to do the upgrade in the webUI.
+`PUID`             | `1000`                                    | User ID for the `moodle` user
+`PGID`             | `1000`                                    | Group ID for the `moodle` user
+`MOODLE_CRON`      | `* * * * *`                               | Runs the Moodle cron script every minute. Unset this to disable the built in cron job for Moodle. Useful in a cluster where you only want a single node running tasks.
+`BACKUP_CRON`      | *NOT SET*                                 | Runs the `backup-config.sh` and `backup-plugins.sh` scripts to backup running moodle to /data
+`PLUGINS_CRON`     | *NOT SET*                                 | Runs the `backup-plugins.sh` script to only backup the plugins.
+`UPDATE_CRON`      | *NOT SET*                                 | Runs scripts to update the running moodle from /data
+`RESTORE_CRON`     | *NOT SET*                                 | Copies plugins from /data into the running moodle
+`TZ`               | `America/Toronto`                         | The timezone for the container. This will be the server timezone for Moodle on new installs.
 
 For the environment variables ending in **_CRON** the format is the same as in cron.
 See the [cron documentation](https://man7.org/linux/man-pages/man5/crontab.5.html) on the format.
@@ -100,12 +101,26 @@ Variable                      | Default                     | Description
 `MOODLE_DATABASE_PORT_NUMBER` | *NOT SET*                   | The port used by the database. Only needed if not using the default port for the database.
 `MOODLE_DATABASE_NAME`        | `moodledb`                  | The name of the Moodle database.
 `MOODLE_DATABASE_USER`        | `moodledbuser`              | The username to access the Moodle database.
-`MOODLE_DATABASE_PASSWORD`    | *NOT SET*                   | The password for the Moodle database.
+`MOODLE_DATABASE_PASSWORD`    | *NOT SET*                   | The password for the Moodle database. **(REQUIRED)**
 `MYSQL_DATABASE_COLLATION`    | `utf8mb4_unicode_ci`        | The collation used by `mysqli`, `mariadb`, and `auroramysql` databases. Ignored for other types.
 `MOODLE_WWW_ROOT`             | `http://moodle.example.com` | The URL to users access Moodle from. If the URL starts with https:// then ssslproxy will be set to true.
 `MOODLE_LOCAL_CACHE_DIR`      | `/moodle/localcache`        | The location for the local cache.
 `MOODLE_CACHE_DIR`            | *NOT SET*                   | The location for the shared cache. Can use `/moodle/cache` for non-clustered Moodle.
 `MOODEL_TEMP_DIR`             | *NOT SET*                   | The location for temp files. Can use `/moodle/temp` for non-clustered Moodle.
+`MOODEL_EXTRA_MEMORY_LIMIT`   | *NOT SET*                   | Moodle will increase PHP's memory limit up to this before doing intensive operations. The value for the settings should be a valid PHP memory value. e.g. 512M, 1G 
+
+For a new Moodle that hasn't been installed yet the following can be used to do the initial Moodle setup.
+These settings are ignored if the database has already been initialized. 
+
+Variable                | Default   | Description
+----------------------- | --------- | -----------
+`MOODLE_SKIP_BOOTSTRAP` | *NOT SET* | If set the install will be skipped.
+`MOODLE_LANGUAGE`       | `en`      | Default site language. Uses the 2 letter code for the language. en for English, fr for French, etc.
+`MOODLE_USERNAME`       | `admin`   | Username for the moodle admin account.
+`MOODLE_PASSWORD`       | *NOT SET* | Password for the moodle admin account. **(REQUIRED)**
+`MOODLE_EMAIL`          | *NOT SET* | Email address for the moodle admin account. **(REQUIRED)**
+`MOODLE_SITE_NAME`      | *NOT SET* | Full name of the site. **(REQUIRED)**
+`MOODLE_SITE_SHORTNAME` | *NOT SET* | Short name for the site. Usually one word. If not set then the full name will be used.
 
 ## Volume
 

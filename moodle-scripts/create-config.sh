@@ -47,6 +47,11 @@ if [[ "$MOODLE_WWW_ROOT" == "https://"* ]]; then
 " >> /var/www/moodle/config.php
 fi
 
+if [[ -n "$MOODEL_EXTRA_MEMORY_LIMIT" ]]; then
+  echo "\$CFG->extramemorylimit = '$MOODEL_EXTRA_MEMORY_LIMIT';
+" >> /var/www/moodle/config.php
+fi
+
 if [[ -n "$MOODLE_LOCAL_CACHE_DIR" ]]; then
   echo "\$CFG->localcachedir = '$MOODLE_LOCAL_CACHE_DIR';" >> /var/www/moodle/config.php
 fi

@@ -43,6 +43,7 @@ ENV MOODLE_BRANCH=$MOODLE_BRANCH
 ENV MOODLE_CRON "* * * * *"
 ENV GIT_URL "git://github.com/moodle/moodle.git"
 ENV MOODLE_LOCAL_CACHE_DIR "/moodle/localcache"
+ENV TZ "America/Toronto"
 EXPOSE 80
 
 ENTRYPOINT ["./dockerstart.sh"]

@@ -104,20 +104,35 @@ git remote set-branches origin "$branch"
 
 IFS=$SAVEIFS
 
-sudo -u moodle /usr/local/bin/php admin/cli/upgrade.php --is-pending
-result=$?
-if [ $result -eq 2 ]; then
-  if [[ -n "$AUTO_UPGRADE" ]]; then
-    echo "Upgrading Moodle..."
-    sudo -u moodle /usr/local/bin/php admin/cli/maintenance.php --enable
-    sudo -u moodle /usr/local/bin/php admin/cli/upgrade.php --non-interactive
-    sudo -u moodle /usr/local/bin/php admin/cli/purge_caches.php
-    sudo -u moodle /usr/local/bin/php admin/cli/maintenance.php --disable
+sudo -u moodle /usr/local/bin/php admin/cli/check_database_schema.php
+db_result=$?
+
+if [ $db_result -eq 2 ]; then
+  if [[ -z "$MOODLE_SKIP_BOOTSTRAP" ]]; then
+    /moodle-scripts/install-database.sh
+    exit $?
   else
-    echo "Moodle upgrade is pending."
+    echo "Moodle database install is pending."
   fi
-elif [ $result -eq 0 ]; then
-  echo "Moodle is up to date."
+elif [ $db_result -ne 0 ]; then
+  echo "Could not connect to the database." >&2
+  exit $db_result
 else
-  exit $result
+  sudo -u moodle /usr/local/bin/php admin/cli/upgrade.php --is-pending
+  result=$?
+  if [ $result -eq 2 ]; then
+    if [[ -n "$AUTO_UPGRADE" ]]; then
+      echo "Upgrading Moodle..."
+      sudo -u moodle /usr/local/bin/php admin/cli/maintenance.php --enable
+      sudo -u moodle /usr/local/bin/php admin/cli/upgrade.php --non-interactive
+      sudo -u moodle /usr/local/bin/php admin/cli/purge_caches.php
+      sudo -u moodle /usr/local/bin/php admin/cli/maintenance.php --disable
+    else
+      echo "Moodle upgrade is pending."
+    fi
+  elif [ $result -eq 0 ]; then
+    echo "Moodle is up to date."
+  else
+    exit $result
+  fi
 fi

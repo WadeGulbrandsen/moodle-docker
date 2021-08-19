@@ -7,9 +7,10 @@ services:
     env_file:
       - ./instance/.env
     environment:
+      TZ: "America/Thunder_Bay"
       GIT_URL: "https://github.com/moodle/moodle.git"
 #      MOODLE_BRANCH: "MOODLE_310_STABLE"
-      AUTO_UPGRADE: "Y"
+#      AUTO_UPGRADE: "Y"
 #      MOODLE_CRON: ""
 #      BACKUP_CRON: "*/15 * * * *"
       PLUGINS_CRON: "*/15 * * * *"
@@ -28,35 +29,35 @@ services:
       - av
     restart: unless-stopped
 
-#  db:
-#    container_name: postgres
-#    image: postgres:12
-#    environment:
-#      POSTGRES_PASSWORD: 'secret-password'
-#      POSTGRES_USER: 'moodle-user'
-#      POSTGRES_DB: 'moodle-db'
-#    volumes:
-#      - ./instance/db:/var/lib/postgresql/data
-#    restart: unless-stopped
-
   db:
-    container_name: mariadb
-    image: mariadb:10.5
-    command: >
-      --character-set-server=utf8mb4
-      --collation-server=utf8mb4_bin
-      --innodb_file_per_table=On
-      --wait-timeout=28800
-    env_file:
-      - ./instance/.env
+    container_name: postgres
+    image: postgres:12
     environment:
-      MARIADB_ROOT_PASSWORD: 'super-secret-password'
-      MARIADB_DATABASE: $MOODLE_DATABASE_NAME
-      MARIADB_USER: $MOODLE_DATABASE_USER
-      MARIADB_PASSWORD: $MOODLE_DATABASE_PASSWORD
+      POSTGRES_DB: $MOODLE_DATABASE_NAME
+      POSTGRES_USER: $MOODLE_DATABASE_USER
+      POSTGRES_PASSWORD: $MOODLE_DATABASE_PASSWORD
     volumes:
-      - ./instance/mariadb:/var/lib/mysql
+      - ./instance/db:/var/lib/postgresql/data
     restart: unless-stopped
+
+#  db:
+#    container_name: mariadb
+#    image: mariadb:10.5
+#    command: >
+#      --character-set-server=utf8mb4
+#      --collation-server=utf8mb4_bin
+#      --innodb_file_per_table=On
+#      --wait-timeout=28800
+#    env_file:
+#      - ./instance/.env
+#    environment:
+#      MARIADB_ROOT_PASSWORD: 'super-secret-password'
+#      MARIADB_DATABASE: $MOODLE_DATABASE_NAME
+#      MARIADB_USER: $MOODLE_DATABASE_USER
+#      MARIADB_PASSWORD: $MOODLE_DATABASE_PASSWORD
+#    volumes:
+#      - ./instance/mariadb:/var/lib/mysql
+#    restart: unless-stopped
 
   av:
     container_name: clamav
