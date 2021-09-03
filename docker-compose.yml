@@ -29,35 +29,33 @@ services:
       - av
     restart: unless-stopped
 
-  db:
-    container_name: postgres
-    image: postgres:12
-    environment:
-      POSTGRES_DB: $MOODLE_DATABASE_NAME
-      POSTGRES_USER: $MOODLE_DATABASE_USER
-      POSTGRES_PASSWORD: $MOODLE_DATABASE_PASSWORD
-    volumes:
-      - ./instance/db:/var/lib/postgresql/data
-    restart: unless-stopped
-
 #  db:
-#    container_name: mariadb
-#    image: mariadb:10.5
-#    command: >
-#      --character-set-server=utf8mb4
-#      --collation-server=utf8mb4_bin
-#      --innodb_file_per_table=On
-#      --wait-timeout=28800
-#    env_file:
-#      - ./instance/.env
+#    container_name: postgres
+#    image: postgres:12
 #    environment:
-#      MARIADB_ROOT_PASSWORD: 'super-secret-password'
-#      MARIADB_DATABASE: $MOODLE_DATABASE_NAME
-#      MARIADB_USER: $MOODLE_DATABASE_USER
-#      MARIADB_PASSWORD: $MOODLE_DATABASE_PASSWORD
+#      POSTGRES_DB: $MOODLE_DATABASE_NAME
+#      POSTGRES_USER: $MOODLE_DATABASE_USER
+#      POSTGRES_PASSWORD: $MOODLE_DATABASE_PASSWORD
 #    volumes:
-#      - ./instance/mariadb:/var/lib/mysql
+#      - ./instance/postgresql:/var/lib/postgresql/data
 #    restart: unless-stopped
+
+  db:
+    container_name: mariadb
+    image: mariadb:10.5
+    command: >
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_bin
+      --innodb_file_per_table=On
+      --wait-timeout=28800
+    environment:
+      MARIADB_ROOT_PASSWORD: $MARIADB_ROOT_PASSWORD
+      MARIADB_DATABASE: $MOODLE_DATABASE_NAME
+      MARIADB_USER: $MOODLE_DATABASE_USER
+      MARIADB_PASSWORD: $MOODLE_DATABASE_PASSWORD
+    volumes:
+      - ./instance/mariadb:/var/lib/mysql
+    restart: unless-stopped
 
   av:
     container_name: clamav
