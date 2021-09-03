@@ -106,7 +106,7 @@ Variable                      | Default                     | Description
 `MOODLE_WWW_ROOT`             | `http://moodle.example.com` | The URL to users access Moodle from. If the URL starts with https:// then ssslproxy will be set to true.
 `MOODLE_LOCAL_CACHE_DIR`      | `/moodle/localcache`        | The location for the local cache.
 `MOODLE_CACHE_DIR`            | *NOT SET*                   | The location for the shared cache. Can use `/moodle/cache` for non-clustered Moodle.
-`MOODEL_TEMP_DIR`             | *NOT SET*                   | The location for temp files. Can use `/moodle/temp` for non-clustered Moodle.
+`MOODLE_TEMP_DIR`             | *NOT SET*                   | The location for temp files. Can use `/moodle/temp` for non-clustered Moodle.
 `MOODEL_EXTRA_MEMORY_LIMIT`   | *NOT SET*                   | Moodle will increase PHP's memory limit up to this before doing intensive operations. The value for the settings should be a valid PHP memory value. e.g. 512M, 1G 
 
 For a new Moodle that hasn't been installed yet the following can be used to do the initial Moodle setup.

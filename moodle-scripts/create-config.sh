@@ -60,8 +60,8 @@ if [[ -n "$MOODLE_CACHE_DIR" ]]; then
   echo "\$CFG->cachedir      = '$MOODLE_CACHE_DIR';" >> /var/www/moodle/config.php
 fi
 
-if [[ -n "$MOODEL_TEMP_DIR" ]]; then
-  echo "\$CFG->tempdir       = '$MOODEL_TEMP_DIR';" >> /var/www/moodle/config.php
+if [[ -n "$MOODLE_TEMP_DIR" ]]; then
+  echo "\$CFG->tempdir       = '$MOODLE_TEMP_DIR';" >> /var/www/moodle/config.php
 fi
 
 echo "
