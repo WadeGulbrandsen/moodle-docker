@@ -41,10 +41,14 @@ cd /var/www/moodle || exit 1
 current_branch=$(git rev-parse --abbrev-ref HEAD)
 
 if [[ "$MOODLE_BRANCH" == "$current_branch" ]]; then
-  echo "Current branch is the desired branch. Pulling git updates."
-  git fetch --depth=1 --quiet
-  git reset --hard "origin/$current_branch"
-  chown -R moodle:moodle /var/www/moodle
+  if [[ -n "$AUTO_UPGRADE" ]]; then
+    echo "Current branch is the desired branch. Pulling git updates."
+    git fetch --depth=1 --quiet
+    git reset --hard "origin/$current_branch" --quiet
+    chown -R moodle:moodle /var/www/moodle
+  else
+    echo "Current branch is the desired branch. Auto updates are disabled."
+  fi
 else
   current_version=$(echo "$current_branch" | cut -d'_' -f 2)
   new_version=$(echo "$MOODLE_BRANCH" | cut -d'_' -f 2)
@@ -114,9 +118,6 @@ if [ $db_result -eq 2 ]; then
   else
     echo "Moodle database install is pending."
   fi
-elif [ $db_result -ne 0 ]; then
-  echo "Could not connect to the database." >&2
-  exit $db_result
 else
   sudo -u moodle /usr/local/bin/php admin/cli/upgrade.php --is-pending
   result=$?

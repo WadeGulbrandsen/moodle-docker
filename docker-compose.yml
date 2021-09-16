@@ -10,7 +10,7 @@ services:
       TZ: "America/Thunder_Bay"
       GIT_URL: "https://github.com/moodle/moodle.git"
 #      MOODLE_BRANCH: "MOODLE_310_STABLE"
-#      AUTO_UPGRADE: "Y"
+      AUTO_UPGRADE: "Y"
 #      MOODLE_CRON: ""
 #      BACKUP_CRON: "*/15 * * * *"
       PLUGINS_CRON: "*/15 * * * *"
