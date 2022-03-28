@@ -3,7 +3,7 @@ services:
   moodle:
     container_name: moodle
     build: .
-    image: moodle-docker:3.9
+    image: moodle-docker:latest
     env_file:
       - ./instance/.env
     environment:

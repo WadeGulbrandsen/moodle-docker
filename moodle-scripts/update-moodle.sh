@@ -13,9 +13,6 @@ if (( ! ${#contents[*]} )); then
   cd moodle || exit 1
 fi
 
-echo "Setting file ownership..."
-chown -R moodle:moodle /var/www/moodle /data /moodle
-
 if [ ! -d "/var/www/moodle/.git" ]; then
   echo "Moodle is not managed by git!" >&2
   exit 1
@@ -25,6 +22,9 @@ if [ ! -d "/data/moodledata" ]; then
   echo "Creating /data/moodledata directory"
   mkdir -p /data/moodledata
 fi
+
+echo "Setting file ownership..."
+chown -R moodle:moodle /var/www/moodle /data /moodle
 
 if [ -f "/data/config.php" ]; then
   # Copying instead of linking because this gets loaded on every request so can slow Moodle down if this is on slow file system (nfs, efs, etc)

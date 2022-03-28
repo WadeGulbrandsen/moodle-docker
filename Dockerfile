@@ -38,10 +38,10 @@ WORKDIR /moodle-scripts
 RUN chmod +x *.sh
 
 ENV PATH "/moodle-scripts:${PATH}"
-ARG MOODLE_BRANCH=MOODLE_39_STABLE
+ARG MOODLE_BRANCH=MOODLE_311_STABLE
 ENV MOODLE_BRANCH=$MOODLE_BRANCH
 ENV MOODLE_CRON "* * * * *"
-ENV GIT_URL "git://github.com/moodle/moodle.git"
+ENV GIT_URL "https://github.com/moodle/moodle.git"
 ENV MOODLE_LOCAL_CACHE_DIR "/moodle/localcache"
 ENV TZ "America/Toronto"
 EXPOSE 80
