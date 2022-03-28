@@ -74,7 +74,7 @@ Tag             | MOODLE_BRANCH     | PHP Version
 ## Environment Variables
 Variable           | Default                                   | Description
 ------------------ | ----------------------------------------- | -----------
-`GIT_URL`          | `git://github.com/moodle/moodle.git`      | The git repository to get Moodle from. Use `https://github.com/moodle/moodle.git` instead to get around some firewalls.
+`GIT_URL`          | `https://github.com/moodle/moodle.git`    | The git repository to get Moodle from.
 `MOODLE_BRANCH`    | The MOODLE_BRANCH from the table above    | The git branch that will be checked out. This can be set to upgrade Moodle to a newer version. Make sure that the new version works with the PHP Version 
 `APACHE_PROXY`     | `10.0.0.0/8 172.16.0.0/12 192.168.0.0/16` | Space separated CIDR address(s) of proxy servers in front of Moodle. Defaults to the standard private subnets.
 `AUTO_UPGRADE`     | *NOT SET*                                 | Set this to to enable automatic Moodle upgrades. When set if an update is pending the container will put Moodle in maintenance mode, run the upgrade script, purge caches, and take Moodle out of maintenance mode. Without this set you will need to do the upgrade in the webUI.
@@ -107,7 +107,7 @@ Variable                      | Default                     | Description
 `MOODLE_LOCAL_CACHE_DIR`      | `/moodle/localcache`        | The location for the local cache.
 `MOODLE_CACHE_DIR`            | *NOT SET*                   | The location for the shared cache. Can use `/moodle/cache` for non-clustered Moodle.
 `MOODLE_TEMP_DIR`             | *NOT SET*                   | The location for temp files. Can use `/moodle/temp` for non-clustered Moodle.
-`MOODEL_EXTRA_MEMORY_LIMIT`   | *NOT SET*                   | Moodle will increase PHP's memory limit up to this before doing intensive operations. The value for the settings should be a valid PHP memory value. e.g. 512M, 1G 
+`MOODLE_EXTRA_MEMORY_LIMIT`   | *NOT SET*                   | Moodle will increase PHP's memory limit up to this before doing intensive operations. The value for the settings should be a valid PHP memory value. e.g. 512M, 1G 
 
 For a new Moodle that hasn't been installed yet the following can be used to do the initial Moodle setup.
 These settings are ignored if the database has already been initialized. 
@@ -234,6 +234,14 @@ services:
     environment:
       PUID: 1001
       PGID: 1001
+      MOODLE_DATABASE_TYPE: 'pgsql'
+      MOODLE_DATABASE_NAME: 'moodle-db'
+      MOODLE_DATABASE_USER: 'moodle-user'
+      MOODLE_DATABASE_PASSWORD: 'secret-password'
+      MOODLE_WWW_ROOT: 'https://moodle.example.com'
+      MOODLE_CACHE_DIR: '/moodle/cache'
+      MOODLE_TEMP_DIR: '/moodle/temp'
+      MOODLE_EXTRA_MEMORY_LIMIT: '512M'
     volumes:
       - /path/to/data:/data
     ports:

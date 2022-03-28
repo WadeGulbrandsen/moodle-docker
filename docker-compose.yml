@@ -3,69 +3,46 @@ services:
   moodle:
     container_name: moodle
     build: .
-    image: moodle-docker:latest
-    env_file:
-      - ./instance/.env
+    image: moodle-docker
     environment:
       TZ: "America/Thunder_Bay"
-      GIT_URL: "https://github.com/moodle/moodle.git"
-#      MOODLE_BRANCH: "MOODLE_310_STABLE"
+#      MOODLE_BRANCH: "MOODLE_311_STABLE"
       AUTO_UPGRADE: "Y"
-#      MOODLE_CRON: ""
 #      BACKUP_CRON: "*/15 * * * *"
       PLUGINS_CRON: "*/15 * * * *"
 #      UPDATE_CRON: "*/5 * * * *"
 #      RESTORE_CRON: "*/4 * * * *"
 #      PUID: 33
 #      PGID: 33
+      MOODLE_DATABASE_TYPE: pgsql
+      MOODLE_DATABASE_NAME: test
+      MOODLE_DATABASE_USER: testuser
+      MOODLE_DATABASE_PASSWORD: "N0t A G00d Passw0rd"
+      MOODLE_WWW_ROOT: http://localhost
+      MOODLE_CACHE_DIR: /moodle/cache
+      MOODLE_TEMP_DIR: /moodle/temp
+      MOODLE_USERNAME: testadmin
+      MOODLE_PASSWORD: "N0t A G00d Passw0rd"
+      MOODLE_EMAIL: "wade@contactnorth.ca"
+      MOODLE_SITE_NAME: "Moodle Test Site"
+      MOODLE_SITE_SHORTNAME: TEST
     volumes:
       - ./instance/data:/data
-      - ./instance/moodle:/var/www/moodle
-      - ./moodle-scripts:/moodle-scripts
+#      - ./instance/moodle:/var/www/moodle
+#      - ./moodle-scripts:/moodle-scripts
     ports:
       - 80:80
     depends_on:
       - db
-      - av
     restart: unless-stopped
-
-#  db:
-#    container_name: postgres
-#    image: postgres:12
-#    environment:
-#      POSTGRES_DB: $MOODLE_DATABASE_NAME
-#      POSTGRES_USER: $MOODLE_DATABASE_USER
-#      POSTGRES_PASSWORD: $MOODLE_DATABASE_PASSWORD
-#    volumes:
-#      - ./instance/postgresql:/var/lib/postgresql/data
-#    restart: unless-stopped
 
   db:
-    container_name: mariadb
-    image: mariadb:10.5
-    command: >
-      --character-set-server=utf8mb4
-      --collation-server=utf8mb4_bin
-      --innodb_file_per_table=On
-      --wait-timeout=28800
+    container_name: postgres
+    image: postgres:12
     environment:
-      MARIADB_ROOT_PASSWORD: $MARIADB_ROOT_PASSWORD
-      MARIADB_DATABASE: $MOODLE_DATABASE_NAME
-      MARIADB_USER: $MOODLE_DATABASE_USER
-      MARIADB_PASSWORD: $MOODLE_DATABASE_PASSWORD
+      POSTGRES_DB: test
+      POSTGRES_USER: testuser
+      POSTGRES_PASSWORD: "N0t A G00d Passw0rd"
     volumes:
-      - ./instance/mariadb:/var/lib/mysql
-    restart: unless-stopped
-
-  av:
-    container_name: clamav
-    image: tiredofit/clamav:latest
-    environment:
-      MAX_FILE_SIZE: $CLAMAV_MAX_SIZE
-      MAX_SCAN_SIZE: $CLAMAV_MAX_SIZE
-      PCRE_MAX_FILE_SIZE: $CLAMAV_MAX_SIZE
-      STREAM_MAX_LENGTH: $CLAMAV_MAX_SIZE
-    volumes:
-      - ./instance/clamav/data:/data
-      - ./instance/clamav/logs:/logs
+      - ./instance/postgresql:/var/lib/postgresql/data
     restart: unless-stopped
