@@ -3,10 +3,9 @@ services:
   moodle:
     container_name: moodle
     build: .
-    image: moodle-docker
+    image: moodle-docker:latest
     environment:
       TZ: "America/Thunder_Bay"
-#      MOODLE_BRANCH: "MOODLE_311_STABLE"
       AUTO_UPGRADE: "Y"
 #      BACKUP_CRON: "*/15 * * * *"
       PLUGINS_CRON: "*/15 * * * *"
@@ -28,8 +27,8 @@ services:
       MOODLE_SITE_SHORTNAME: TEST
     volumes:
       - ./instance/data:/data
-#      - ./instance/moodle:/var/www/moodle
-#      - ./moodle-scripts:/moodle-scripts
+      - ./instance/moodle:/var/www/moodle
+      - ./moodle-scripts:/moodle-scripts
     ports:
       - 80:80
     depends_on:

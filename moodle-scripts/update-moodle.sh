@@ -38,6 +38,15 @@ fi
 
 cd /var/www/moodle || exit 1
 
+current_remote=$(git remote get-url origin)
+
+if [[ "$GIT_URL" == "$current_remote" ]]; then
+  echo "Current GIT URL is the desired GIT URL: $current_remote"
+else
+  echo "Replacing current GIT URL $current_remote with the desired GIT URL $GIT_URL"
+  git remote set-url origin "$GIT_URL"
+fi
+
 current_branch=$(git rev-parse --abbrev-ref HEAD)
 
 if [[ "$MOODLE_BRANCH" == "$current_branch" ]]; then
