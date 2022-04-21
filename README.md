@@ -64,12 +64,11 @@ Port 80 tcp is the only port needed
 
 `lts` follows the current Long Term Support Moodle release
 
-Tag             | MOODLE_BRANCH     | PHP Version
---------------- | ----------------- | -----------
-`latest` `3.11` | MOODLE_311_STABLE | 7.4
-`3.10`          | MOODLE_310_STABLE | 7.4
-`lts` `3.9`     | MOODLE_39_STABLE  | 7.4
-`3.8`           | MOODLE_38_STABLE  | 7.4
+Tag            | MOODLE_BRANCH     | PHP Version
+-------------- |-------------------| -----------
+`latest` `4.0` | MOODLE_400_STABLE | 7.4
+`3.11`         | MOODLE_311_STABLE | 7.4
+`lts` `3.9`    | MOODLE_39_STABLE  | 7.4
 
 ## Environment Variables
 Variable           | Default                                   | Description
