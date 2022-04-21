@@ -64,6 +64,18 @@ if [[ -n "$MOODLE_TEMP_DIR" ]]; then
   echo "\$CFG->tempdir       = '$MOODLE_TEMP_DIR';" >> /var/www/moodle/config.php
 fi
 
+if [[ -n "$BBB_SERVER_URL" ]] || [[ -n "$BBB_SHARED_SECRET" ]]; then
+  echo >> /var/www/moodle/config.php
+fi
+
+if [[ -n "$BBB_SERVER_URL" ]]; then
+  echo "\$CFG->bigbluebuttonbn['server_url']    = '$BBB_SERVER_URL';" >> /var/www/moodle/config.php
+fi
+
+if [[ -n "$BBB_SHARED_SECRET" ]]; then
+  echo "\$CFG->bigbluebuttonbn['shared_secret'] = '$BBB_SHARED_SECRET';" >> /var/www/moodle/config.php
+fi
+
 echo "
 \$CFG->directorypermissions = 02775;
 

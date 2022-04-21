@@ -108,6 +108,8 @@ Variable                      | Default                     | Description
 `MOODLE_CACHE_DIR`            | *NOT SET*                   | The location for the shared cache. Can use `/moodle/cache` for non-clustered Moodle.
 `MOODLE_TEMP_DIR`             | *NOT SET*                   | The location for temp files. Can use `/moodle/temp` for non-clustered Moodle.
 `MOODLE_EXTRA_MEMORY_LIMIT`   | *NOT SET*                   | Moodle will increase PHP's memory limit up to this before doing intensive operations. The value for the settings should be a valid PHP memory value. e.g. 512M, 1G 
+`BBB_SERVER_URL`              | *NOT SET*                   | The URL for your BigBlueButton e.g. http://test-install.blindsidenetworks.com/bigbluebutton/ setting in config.php hides this in the web UI
+`BBB_SHARED_SECRET`           | *NOT SET*                   | The security salt for your BigBlueButton. Setting in config.php hides this from the web UI
 
 For a new Moodle that hasn't been installed yet the following can be used to do the initial Moodle setup.
 These settings are ignored if the database has already been initialized. 

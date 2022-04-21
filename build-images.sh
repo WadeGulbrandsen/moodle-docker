@@ -1,13 +1,12 @@
 #!/usr/bin/env bash
 
 declare -A builds
-builds[MOODLE_38_STABLE]="3.8"
 builds[MOODLE_39_STABLE]="3.9 lts"
-builds[MOODLE_310_STABLE]="3.10"
-builds[MOODLE_311_STABLE]="3.11 latest"
+builds[MOODLE_311_STABLE]="3.11"
+builds[MOODLE_400_STABLE]="4.0 latest"
 
 # Need this to preserver order
-branches=(MOODLE_38_STABLE MOODLE_39_STABLE MOODLE_310_STABLE MOODLE_311_STABLE)
+branches=(MOODLE_39_STABLE MOODLE_311_STABLE MOODLE_400_STABLE)
 
 repos=(moodle-docker wadegulbrandsen/moodle-docker)
 remotes=(wadegulbrandsen/moodle-docker)

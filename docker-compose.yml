@@ -25,6 +25,8 @@ services:
       MOODLE_EMAIL: "wade@contactnorth.ca"
       MOODLE_SITE_NAME: "Moodle Test Site"
       MOODLE_SITE_SHORTNAME: TEST
+      BBB_SERVER_URL: http://test-install.blindsidenetworks.com/bigbluebutton/
+      BBB_SHARED_SECRET: 8cd8ef52e8e101574e400365b55e11a6
     volumes:
       - ./instance/data:/data
       - ./instance/moodle:/var/www/moodle
