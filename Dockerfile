@@ -46,4 +46,6 @@ ENV MOODLE_LOCAL_CACHE_DIR "/moodle/localcache"
 ENV TZ "America/Toronto"
 EXPOSE 80
 
+HEALTHCHECK --start-period=5m CMD curl -f http://localhost/ || exit 1
+
 ENTRYPOINT ["./dockerstart.sh"]
